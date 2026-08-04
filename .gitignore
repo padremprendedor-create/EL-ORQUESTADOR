@@ -1,0 +1,13 @@
+# Nada de este repo se compila ni se instala: son instrucciones en markdown.
+# Esto es solo higiene contra basura del sistema operativo y del editor.
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+
+# Y el recordatorio que importa: aqui NUNCA entra nada de ~/.codex salvo los
+# dos perfiles y el AGENTS.md que ya estan en codex/. El config.toml real lleva
+# rutas de proyectos privados, y auth.json lleva credenciales.
+auth.json
+config.toml

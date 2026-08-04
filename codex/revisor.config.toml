@@ -1,0 +1,12 @@
+# ── Perfil REVISOR ───────────────────────────────────────────────────────────
+# Segunda opinión INDEPENDIENTE y verificación adversarial.
+# Es el perfil por defecto para automatización: no puede escribir nada.
+#
+#   codex -p revisor exec "..."
+#   codex -p revisor review --uncommitted
+#
+# Se apila sobre ~/.codex/config.toml (hereda model y auth de ahí).
+
+sandbox_mode           = "read-only"
+approval_policy        = "never"
+model_reasoning_effort = "high"

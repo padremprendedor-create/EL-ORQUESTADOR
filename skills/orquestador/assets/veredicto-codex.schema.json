@@ -1,0 +1,90 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Veredicto de verificación adversarial de un SPEC",
+  "$comment": "Pensado para `codex exec --output-schema`. El modo estructurado de OpenAI es ESTRICTO: cada `required` debe listar TODAS las propiedades de su objeto, y no admite `minItems`/`maxItems`. Un campo opcional se modela con `\"type\": [\"...\", \"null\"]`, nunca dejándolo fuera de `required` — si lo dejas fuera, la llamada falla con un 400 `invalid_json_schema` antes de arrancar.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["veredicto", "resumen", "criterios", "defectos", "hallazgos_fuera_de_criterios", "que_hacer_ahora"],
+  "properties": {
+    "veredicto": {
+      "type": "string",
+      "enum": ["CUMPLE", "CUMPLE CON RESERVAS", "NO CUMPLE"],
+      "description": "NO CUMPLE si algún criterio falla o se saltó un permiso humano. CUMPLE CON RESERVAS si lo esencial se cumple pero queda algo NO VERIFICABLE que no bloquea."
+    },
+    "resumen": {
+      "type": "string",
+      "description": "Una frase. Si es NO CUMPLE, qué falta exactamente para que sea CUMPLE."
+    },
+    "criterios": {
+      "type": "array",
+      "description": "Un elemento por criterio del SPEC, todos. OJO: el modo estricto no admite `minItems`, así que este esquema NO puede exigir que estén todos — un `CUMPLE` con `criterios: []` es JSON válido. La cobertura se comprueba fuera: mismos números, misma cantidad, sin duplicados, texto literal del SPEC. Un criterio que no vino es NO VERIFICABLE, no un CUMPLE tácito.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["numero", "criterio", "resultado", "evidencia"],
+        "properties": {
+          "numero": { "type": "integer" },
+          "criterio": {
+            "type": "string",
+            "description": "Copiado literal del SPEC, no reformulado."
+          },
+          "resultado": {
+            "type": "string",
+            "enum": ["CUMPLE", "NO CUMPLE", "NO VERIFICABLE"],
+            "description": "Ante la duda, NO VERIFICABLE. Nunca CUMPLE sin evidencia localizable."
+          },
+          "evidencia": {
+            "type": "string",
+            "description": "archivo:línea, salida de comando o resultado de consulta. Si el resultado es NO VERIFICABLE: por qué no se pudo comprobar y qué haría falta."
+          }
+        }
+      }
+    },
+    "defectos": {
+      "type": "array",
+      "description": "Fallos concretos encontrados, más allá del veredicto por criterio. Array vacío si no hay ninguno.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["severidad", "que_falla", "donde", "como_reproducir", "arreglo_propuesto"],
+        "properties": {
+          "severidad": { "type": "string", "enum": ["P0", "P1", "P2", "P3"] },
+          "que_falla": { "type": "string" },
+          "donde": { "type": "string", "description": "archivo:línea" },
+          "como_reproducir": {
+            "type": "string",
+            "description": "Pasos, consulta o entrada concreta que lo demuestra. Sin esto es una sospecha, no un defecto."
+          },
+          "arreglo_propuesto": {
+            "type": ["string", "null"],
+            "description": "Nulo si no se propone arreglo. No se puede omitir: el modo estricto exige la clave."
+          }
+        }
+      }
+    },
+    "hallazgos_fuera_de_criterios": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["permisos", "deriva_de_alcance", "sobre_el_spec"],
+      "properties": {
+        "permisos": {
+          "type": "string",
+          "description": "Acción de «requiere permiso humano» ejecutada sin aprobación, o «ninguna». Es el hallazgo más grave posible."
+        },
+        "deriva_de_alcance": {
+          "type": "string",
+          "description": "Lo que se hizo y estaba en «esto NO es», o «ninguna»."
+        },
+        "sobre_el_spec": {
+          "type": "string",
+          "description": "Criterios flojos, ambiguos o que ya no describen el trabajo. Un criterio flojo que el trabajo cumple es CUMPLE más un hallazgo aquí, no una reinterpretación."
+        }
+      }
+    },
+    "que_hacer_ahora": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Acciones concretas y ordenadas. Si el veredicto es CUMPLE, una sola entrada diciéndolo."
+    }
+  }
+}

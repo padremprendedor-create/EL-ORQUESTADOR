@@ -1,0 +1,213 @@
+<!--
+  PLANTILLA DEL INFORME DE RONDA — skill `orquestador`, paso 8.
+
+  Cómo usarla
+  · Copia este archivo al scratchpad, sustituye los {{MARCADORES}} y borra las
+    secciones que no apliquen. Es un punto de partida, no una camisa de fuerza:
+    si el contenido de la ronda pide otra sección, añádela.
+  · Publícala con la herramienta Artifact (carga antes la skill `artifact-design`).
+    El contenido va sin <!doctype>, <html>, <head> ni <body>: los pone el publicador.
+  · Copia el mismo archivo al vault del proyecto, junto al ROADMAP.
+
+  LA REGLA QUE NO SE TOCA
+  Cada afirmación lleva su marca: <span class="c ok">Comprobado</span>,
+  <span class="c duda">Sin verificar</span>, <span class="c fallo">Defecto</span>.
+  Un informe que mezcla lo comprobado con lo afirmado sirve para sentirse bien,
+  no para revisar. Si no puedes marcar algo como comprobado, va como sin verificar
+  — nunca se calla.
+
+  Y NO INVENTES DINERO. Tokens medidos, y el párrafo que explica por qué no hay
+  cifra en euros. Está más abajo, escrito.
+-->
+
+<title>{{TÍTULO DE LA RONDA}}</title>
+
+<style>
+  :root {
+    --papel: #f4f6f3;  --papel-alto: #fff;   --tinta: #11201c;
+    --tinta-suave: #4a5b55;  --linea: #d9e0db;  --acento: #2b5c7a;
+    --ok: #2f6b46;  --duda: #8a6a24;  --fallo: #b3261e;
+    --serif: "Iowan Old Style", "Palatino Linotype", Charter, Palatino, Georgia, serif;
+    --sans: ui-sans-serif, system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --mono: ui-monospace, "Cascadia Mono", "Consolas", "SF Mono", Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --papel: #101714;  --papel-alto: #17211d;  --tinta: #e8efea;
+      --tinta-suave: #9aaba3;  --linea: #2a3833;  --acento: #7fb3d0;
+      --ok: #6fbf8e;  --duda: #d6b35f;  --fallo: #f08a80;
+    }
+  }
+  :root[data-theme="dark"] {
+    --papel: #101714;  --papel-alto: #17211d;  --tinta: #e8efea;
+    --tinta-suave: #9aaba3;  --linea: #2a3833;  --acento: #7fb3d0;
+    --ok: #6fbf8e;  --duda: #d6b35f;  --fallo: #f08a80;
+  }
+  :root[data-theme="light"] {
+    --papel: #f4f6f3;  --papel-alto: #fff;   --tinta: #11201c;
+    --tinta-suave: #4a5b55;  --linea: #d9e0db;  --acento: #2b5c7a;
+    --ok: #2f6b46;  --duda: #8a6a24;  --fallo: #b3261e;
+  }
+
+  body { background: var(--papel); color: var(--tinta); font-family: var(--serif);
+         font-size: 17px; line-height: 1.62; margin: 0; }
+  .hoja { max-width: 46rem; margin: 0 auto; padding: 4rem 1.5rem 6rem;
+          display: flex; flex-direction: column; gap: 2.25rem; }
+
+  .cabecera { display: flex; flex-direction: column; gap: .6rem;
+              border-bottom: 2px solid var(--tinta); padding-bottom: 1.5rem; }
+  .rotulo { font-family: var(--sans); font-size: .72rem; font-weight: 600;
+            letter-spacing: .13em; text-transform: uppercase; color: var(--acento); }
+  h1 { font-size: 2.1rem; line-height: 1.15; margin: 0; text-wrap: balance;
+       font-weight: 600; letter-spacing: -.015em; }
+  .entradilla { color: var(--tinta-suave); font-size: 1.02rem; margin: 0; }
+
+  section { display: flex; flex-direction: column; gap: .9rem; }
+  h2 { font-family: var(--sans); font-size: 1.1rem; font-weight: 650; margin: 0;
+       padding-bottom: .45rem; border-bottom: 1px solid var(--linea);
+       text-wrap: balance; }
+  h3 { font-family: var(--sans); font-size: .95rem; font-weight: 650; margin: .5rem 0 0; }
+  p, li { margin: 0; }
+  ul, ol { margin: 0; padding-left: 1.2rem; display: flex; flex-direction: column; gap: .45rem; }
+  strong { font-weight: 650; }
+  a { color: var(--acento); }
+
+  /* Marcas de verificación — el dispositivo estructural del informe */
+  .c { font-family: var(--sans); font-size: .68rem; font-weight: 650; white-space: nowrap;
+       letter-spacing: .04em; text-transform: uppercase; padding: .14em .5em .18em;
+       border-radius: 2px; border: 1px solid currentColor; display: inline-block;
+       vertical-align: .08em; }
+  .c.ok    { color: var(--ok); }
+  .c.duda  { color: var(--duda); }
+  .c.fallo { color: var(--fallo); background: color-mix(in srgb, var(--fallo) 10%, transparent); }
+
+  /* Tablas: siempre dentro de su propio scroll, el cuerpo nunca se va de lado */
+  .marco { overflow-x: auto; border: 1px solid var(--linea); border-radius: 3px;
+           background: var(--papel-alto); }
+  table { border-collapse: collapse; width: 100%; font-family: var(--sans);
+          font-size: .87rem; }
+  th, td { text-align: left; padding: .55rem .8rem; border-bottom: 1px solid var(--linea);
+           vertical-align: top; }
+  th { font-weight: 650; font-size: .72rem; letter-spacing: .06em; text-transform: uppercase;
+       color: var(--tinta-suave); white-space: nowrap; }
+  tbody tr:last-child td { border-bottom: none; }
+  tr.total td { font-weight: 700; border-top: 2px solid var(--tinta); }
+  .num { text-align: right; font-variant-numeric: tabular-nums; font-family: var(--mono);
+         font-size: .82rem; white-space: nowrap; }
+
+  code, .ev { font-family: var(--mono); font-size: .85em; }
+  code { background: color-mix(in srgb, var(--tinta) 7%, transparent);
+         padding: .1em .35em; border-radius: 2px; }
+  pre { font-family: var(--mono); font-size: .8rem; line-height: 1.5; margin: 0;
+        background: var(--papel-alto); border: 1px solid var(--linea); border-radius: 3px;
+        padding: .8rem 1rem; overflow-x: auto; }
+
+  .nota { border-left: 3px solid var(--acento); padding: .1rem 0 .1rem 1rem;
+          color: var(--tinta-suave); font-size: .96rem; }
+  .defecto { border: 1px solid var(--linea); border-left: 3px solid var(--fallo);
+             border-radius: 3px; background: var(--papel-alto); padding: .9rem 1.1rem;
+             display: flex; flex-direction: column; gap: .5rem; }
+  .cifras { display: grid; grid-template-columns: 1fr; gap: 0; border: 1px solid var(--linea);
+            border-radius: 3px; background: var(--papel-alto); }
+  @media (min-width: 640px) { .cifras { grid-template-columns: 1fr 1fr; } }
+  .cifra { padding: .8rem 1rem; border-bottom: 1px solid var(--linea); }
+  .cifra .k { font-family: var(--sans); font-size: .7rem; letter-spacing: .07em;
+              text-transform: uppercase; color: var(--tinta-suave); }
+  .cifra .v { font-family: var(--mono); font-size: 1.25rem; font-variant-numeric: tabular-nums; }
+  .pie { border-top: 1px solid var(--linea); padding-top: 1.2rem; color: var(--tinta-suave);
+         font-size: .85rem; font-family: var(--sans); }
+</style>
+
+<div class="hoja">
+
+  <header class="cabecera">
+    <div class="rotulo">Informe de ronda · {{FECHA}}</div>
+    <h1>{{TÍTULO — qué se construyó, en una línea}}</h1>
+    <p class="entradilla">{{Una o dos frases: qué desbloquea esto y para quién.}}</p>
+  </header>
+
+  <section>
+    <h2>Cómo leer esto</h2>
+    <p>Cada afirmación de este informe lleva su marca. La distinción es el punto:</p>
+    <ul>
+      <li><span class="c ok">Comprobado</span> — se ejecutó la comprobación y hay evidencia: salida de un comando, una fila de la base, una pantalla.</li>
+      <li><span class="c duda">Sin verificar</span> — está escrito y revisado, pero nadie lo ha visto funcionar. Abajo está qué haría falta.</li>
+      <li><span class="c fallo">Defecto</span> — se encontró roto. Cada uno lleva su reproducción.</li>
+    </ul>
+    <p class="nota">{{Si construiste tú en esta misma sesión, dilo aquí: tu contexto está contaminado y tus «comprobado» merecen más desconfianza que los de Codex.}}</p>
+  </section>
+
+  <section>
+    <h2>Qué se construyó</h2>
+    <!-- Un bloque por bloque de la ronda. Qué hace, qué decisión no obvia se tomó, y su marca. -->
+    <h3>{{Bloque A · nombre}} <span class="c ok">Comprobado</span></h3>
+    <p>{{Qué hace y la decisión que no era obvia, con su porqué.}}</p>
+  </section>
+
+  <section>
+    <h2>Qué costó</h2>
+    <div class="marco">
+      <table>
+        <thead><tr><th>Bloque</th><th>Modelo</th><th class="num">Tokens</th><th class="num">Herram.</th><th class="num">Duración</th></tr></thead>
+        <tbody>
+          <tr><td>{{A · nombre}}</td><td>{{opus}}</td><td class="num">{{0}}</td><td class="num">{{0}}</td><td class="num">{{0m00s}}</td></tr>
+          <tr><td><strong>Verificación</strong> ({{n}} lentes)</td><td>{{opus}}</td><td class="num">{{0}}</td><td class="num">{{0}}</td><td class="num">{{0m00s}}</td></tr>
+          <tr class="total"><td>Total</td><td></td><td class="num">{{0}}</td><td class="num">{{0}}</td><td class="num">{{0h00m}}</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="cifras">
+      <div class="cifra"><div class="k">Verificación sobre el total</div><div class="v">{{0}} %</div></div>
+      <div class="cifra"><div class="k">Camino crítico real</div><div class="v">{{0h00m}}</div></div>
+      <div class="cifra"><div class="k">Reloj de la sesión</div><div class="v">{{0h00m}}</div></div>
+      <div class="cifra"><div class="k">Código</div><div class="v">{{0}} líneas</div></div>
+    </div>
+    <p><strong>Sobre el dinero, no hay cifra, y es a propósito.</strong> Los tokens de arriba son lo que el arnés reporta al cerrar cada agente; no está claro si cuenta solo salida o entrada y salida, y esa diferencia cambia el resultado por un factor grande. Tampoco incluye el contexto del propio orquestador. Y sobre suscripción no se factura por token, así que convertirlo a euros describiría algo que no es lo que se paga. Tokens medidos antes que euros inventados.</p>
+    <p class="nota">{{La cifra que señala al orquestador: suma de agentes frente a camino crítico frente a reloj. Si los agentes no fueron el cuello de botella, dilo — aunque no favorezca.}}</p>
+  </section>
+
+  <section>
+    <h2>Qué encontró la verificación</h2>
+    <p>{{n}} defectos confirmados, cada uno con su reproducción. Los que siguen son los que habrían dolido:</p>
+    <div class="defecto">
+      <div><span class="c fallo">Defecto</span> <strong>{{Título en una línea}}</strong></div>
+      <p>{{Qué falla y por qué importa — el día en que habría aparecido.}}</p>
+      <p class="ev">{{Reproducción: consulta, comando o pasos. Sin esto es una sospecha.}}</p>
+    </div>
+    <p class="nota">{{Si alguna corrección adversarial resultó falsa, va aquí. Un veredicto de una lente también se verifica.}}</p>
+  </section>
+
+  <section>
+    <h2>Qué está comprobado y qué no</h2>
+    <div class="marco">
+      <table>
+        <thead><tr><th>Criterio</th><th>Estado</th><th>Evidencia, o qué haría falta</th></tr></thead>
+        <tbody>
+          <tr><td>{{Criterio 1, literal del SPEC}}</td><td><span class="c ok">Comprobado</span></td><td class="ev">{{salida / archivo:línea / consulta}}</td></tr>
+          <tr><td>{{Criterio 2}}</td><td><span class="c duda">Sin verificar</span></td><td class="ev">{{qué falta exactamente para poder comprobarlo}}</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>Veredicto de Codex ({{modelo}}, revisor externo):</strong> {{CUMPLE | CUMPLE CON RESERVAS | NO CUMPLE}}. {{Dónde discrepó contigo — ahí está la señal que justifica el gasto.}}</p>
+  </section>
+
+  <section>
+    <h2>Qué queda en manos de una persona</h2>
+    <ol>
+      <li>{{Paso manual, por qué no se puede automatizar, y qué desbloquea.}}</li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>Lecciones de proceso</h2>
+    <ul>
+      <li>{{Lo que se hará distinto la próxima ronda, con el coste que tuvo esta vez.}}</li>
+    </ul>
+  </section>
+
+  <footer class="pie">
+    SPEC: <code>{{ruta}}</code> · Commits: <code>{{sha}}</code> · Verificado por: {{quién}} ·
+    Generado por la skill <code>orquestador</code>.
+  </footer>
+
+</div>

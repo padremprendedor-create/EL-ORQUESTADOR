@@ -1,0 +1,18 @@
+# ── Perfil CONSTRUCTOR ───────────────────────────────────────────────────────
+# Implementación acotada DENTRO del workspace, para cuando Codex actúa como
+# agente escritor de una ronda (worktree o rama propia).
+#
+#   codex -p constructor exec -C "D:\ruta\worktree" "implementa X segun SPEC.md"
+#
+# REGLA DURA (ver ~/.codex/AGENTS.md): escribe archivos y reporta.
+# NO commitea, NO pushea. El Revisor Central hace el commit único.
+#
+# Red apagada: si una tarea necesita instalar dependencias, súbelo a mano
+# con  -c sandbox_workspace_write.network_access=true  en esa corrida.
+
+sandbox_mode           = "workspace-write"
+approval_policy        = "on-request"
+model_reasoning_effort = "high"
+
+[sandbox_workspace_write]
+network_access = false
