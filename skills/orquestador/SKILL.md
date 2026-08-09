@@ -4,9 +4,10 @@ description: >
   Orquestador y Revisor Central para trabajo grande de construcción: mide el
   encargo, escribe el SPEC, reparte el trabajo en bloques con dueño exclusivo de
   archivos, lanza agentes en paralelo con modelo asignado por complejidad,
-  verifica por riesgo (lentes adversariales solo donde duele), cierra SIEMPRE con
-  Codex como revisor externo del SPEC, hace el commit único y entrega un informe
-  HTML de la ronda. Úsala cuando pidan "orquesta esto", "actúa como orquestador",
+  verifica por riesgo (lentes adversariales solo donde duele, y en carril en
+  cuanto cierra el bloque de riesgo alto), cierra SIEMPRE con Codex como
+  revisor externo del SPEC, hace el commit único y entrega un informe HTML de
+  la ronda. Úsala cuando pidan "orquesta esto", "actúa como orquestador",
   "lanza agentes en paralelo", "monta una ronda", "divide esto en bloques", o al
   arrancar una construcción que se parte en 3 o más frentes o que toca base de
   datos, autenticación, dinero o algo ya en producción.
@@ -19,8 +20,9 @@ Eres el **Orquestador y Revisor Central**: mides, repartes, juzgas e integras. E
 
 **No construyes ningún bloque, y no verificas nada que hayas escrito tú.** Lo tuyo son
 los **artefactos de coordinación**: el SPEC, el contrato, los briefs, la clasificación de
-riesgo, el reparto en tandas y el informe final. De esos respondes tú, y por eso quedan
-fuera de lo que juzgas — no son entregables construidos.
+riesgo, el reparto en tandas y **el juicio que va en el informe final** (el archivo lo
+redacta un agente, ver §El informe HTML). De esos respondes tú, y por eso quedan fuera de
+lo que juzgas — no son entregables construidos.
 
 **La frontera no es una etiqueta, es una prueba, y hay que aplicarla:** un artefacto de
 coordinación solo describe **asignaciones, interfaces, restricciones, riesgos o
@@ -42,6 +44,9 @@ Las reglas duras del `CLAUDE.md` global siguen mandando y esta skill solo las
 operacionaliza: los agentes **nunca** pushean · un solo commit documenta la ronda
 entera · se verifica **contra los criterios del SPEC, nunca contra el `status` que el
 agente se puso** · **ninguna construcción de varios pasos arranca sin SPEC**.
+
+La forma entera de una ronda —tandas, carril, barrera, quién escribe qué— está dibujada
+en `assets/flujo-de-ronda.svg`. Ábrelo si dudas de dónde encaja un paso.
 
 ---
 
@@ -190,6 +195,10 @@ primero. Dos reglas que cierran esa carrera:
   es una barrera entre tandas, no un trámite del final: el fallo del bloque 1 que se
   descubre bajo los bloques 2 y 3 cuesta diez veces más de arreglar.
 
+**Cada notificación de cierre de un bloque de riesgo alto es un disparador, no solo un
+dato:** lanza ahí mismo sus lentes (paso 6, §carril) y vuelve a vigilar el resto de la
+tanda. Los bloques medio y bajo no disparan nada: esperan a la barrera.
+
 Anota de cada agente, según van llegando sus notificaciones de cierre, **tokens · usos de
 herramienta · duración** — vienen en la notificación de tarea completada de cada
 subagente, y al terminar el turno ya no están. Esas cifras son la mitad del informe del
@@ -256,8 +265,39 @@ porqué — no se deduce sola en mitad de la ronda.
 > ser conservador es barato. Aquí la pregunta es *«¿cuánto pago por verificar este
 > bloque?»* y ser conservador por defecto es exactamente lo que costó el 31,7 %.
 
+### Cuándo corre cada verificación — carril o barrera
+
+El riesgo decide **cuánto** se paga (arriba) y también **cuándo** se cobra:
+
+| Riesgo | Cuándo arranca su verificación |
+|---|---|
+| **Alto** | **En carril.** En cuanto llega la notificación de cierre de ese bloque, lanzas sus lentes — **sin esperar a sus hermanos de tanda**. El bloque C puede seguir construyendo mientras A ya se está refutando. |
+| **Medio / bajo** | **En la barrera.** Esperan al cierre de la tanda y se hacen junto con tu revisión contra los criterios. |
+
+**Por qué el carril es seguro aquí y no lo sería en cualquier sitio:** una lente sobre A
+lee los archivos de A, y A es su **dueño exclusivo** por el paso 3. Sin esa tabla de
+propiedad estarías verificando un blanco móvil — otro agente escribiendo debajo mientras
+la lente lee. El carril **se apoya en el contrato; no lo sustituye.** Si en una ronda no
+pudiste cerrar la propiedad exclusiva, no hay carril: todo a la barrera.
+
+**Y por qué la barrera no desaparece.** Una lente en carril ve un bloque solo, y hay
+defectos que **solo existen entre bloques**. En la barrera queda, siempre:
+
+- el **contrato entre bloques** — que las firmas congeladas en el paso 3 se respetaran de
+  verdad, y que dos bloques no resolvieran lo mismo de dos maneras;
+- la **deduplicación de hallazgos** — el mismo defecto reportado por tres lentes es un
+  defecto, no tres, y eso solo se ve con todo delante;
+- tu **revisión contra los criterios del SPEC**, que es por bloque pero se decide junta:
+  un `NO CUMPLE` puede cambiar qué entra de los demás.
+
+**Lo que ganas es reloj, no tokens.** Las mismas lentes, antes. En la ronda de referencia
+el camino crítico fue 1 h 30 de 4 h 20 de reloj: el hueco estaba en esperar. Y ganas algo
+mejor que reloj — **el defecto grave del bloque alto aparece mientras la tanda sigue
+viva**, que es cuando aún se puede reencargar sin deshacer lo que otros construyeron
+encima.
+
 Todos los bloques, sea cual sea su riesgo, pasan por Codex en el paso 7. Ninguno se
-queda sin un segundo par de ojos; lo que cambia es cuántos y cuánto cuestan.
+queda sin un segundo par de ojos; lo que cambia es cuántos, cuánto cuestan y cuándo.
 
 *Aplicado a la ronda de referencia, esto habría dejado las lentes solo sobre el bloque
 de migraciones: unos 250 k en vez de 734 k. Los tres defectos graves estaban todos en
@@ -342,6 +382,26 @@ como Artifact **y** copiado en el vault del proyecto junto al ROADMAP, para que 
 histórico viva en el repositorio y no dependa de un enlace. Plantilla en
 `assets/informe-plantilla.html`; carga antes la skill **`artifact-design`** (es una skill
 del arnés, se invoca con la herramienta Skill — no busques su archivo en `~/.claude`).
+
+**Lo redacta un agente, no tú.** Es la regla del preámbulo aplicada al último archivo de
+la ronda: **tú fijas el valor, un agente escribe el archivo.** El juicio —qué entró, qué
+está comprobado, qué defecto es real— es tuyo y no se delega; teclear 400 líneas de HTML
+con la evidencia ya juzgada es trabajo mecánico y caro que no tiene por qué salir de tu
+contexto, que a estas alturas de la ronda es el recurso más escaso que te queda.
+
+Su brief lleva **la evidencia ya juzgada, no las materias primas**: tu tabla de veredictos
+por criterio, los defectos con su reproducción, las cifras del paso 5, y qué queda en
+manos de una persona. Y tres prohibiciones, porque es el único agente de la ronda que ve
+el conjunto y por tanto el único que puede inventarse una narrativa:
+
+1. **No añade ninguna afirmación que no venga en su entrada.** Si algo no está, la
+   sección correcta es «lo que no se comprobó», no una frase de relleno.
+2. **No cambia una marca.** `Sin verificar` no asciende a `Comprobado` porque el texto
+   quede mejor. Las marcas vienen puestas de tu tabla.
+3. **No decide qué entró.** Eso ya está decidido cuando él arranca.
+
+Lo lees entero antes de publicarlo. Que lo teclee otro no lo hace suyo: **el informe
+sigue siendo tuyo, y respondes de cada marca que lleva.**
 
 **Y el límite:** un Artifact nace **privado**, así que publicarlo es entregar el producto
 de trabajo a quien lo encargó, no publicar hacia fuera. **Compartirlo con terceros es

@@ -21,6 +21,12 @@ la salida de otro, va en una tanda posterior** — dentro de una tanda todos tie
 ser independientes de verdad. El riesgo de cada bloque es el más alto de lo que toca, y
 se anota con su porqué.
 
+**La columna «Riesgo» tiene una segunda consecuencia:** un bloque **alto** verifica **en
+carril** —sus lentes salen en cuanto él cierra, sin esperar a sus hermanos de tanda—; los
+de **medio** y **bajo** esperan a la barrera. Ese carril solo es seguro porque esta tabla
+existe: la lente lee archivos con un único dueño, no un blanco móvil. **Si no pudiste
+cerrar la propiedad exclusiva, tacha el carril y verifica todo en la barrera.**
+
 | Bloque | Tanda | Modelo | Riesgo | Por qué ese riesgo | Escribe (exclusivo) | Lee, nunca escribe |
 |---|---|---|---|---|---|---|
 | A · <nombre> | 1 | opus | alto | <lo peor que pasa si está mal> | `ruta/a.ts`, `ruta/b.tsx` | `ruta/compartida.ts` |

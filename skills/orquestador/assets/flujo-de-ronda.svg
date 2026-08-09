@@ -1,0 +1,128 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 1040" width="1120" height="1040" font-family="ui-sans-serif, -apple-system, 'Segoe UI', system-ui, sans-serif">
+  <title>Flujo de una ronda orquestada: tandas, carril y barrera</title>
+  <desc>El orquestador escribe SPEC, contrato y reparto. Lanza los bloques de una tanda en paralelo, cada uno con dueño exclusivo de sus archivos. Los bloques de riesgo alto disparan sus lentes adversariales en carril, sin esperar a los hermanos; los de riesgo medio y bajo esperan a la barrera de cierre de tanda, donde también se revisa el contrato entre bloques y se decide qué entra. Después, Codex verifica el SPEC como revisor externo, el orquestador hace el commit único y un agente redactor escribe el informe HTML.</desc>
+
+  <defs>
+    <symbol id="bot" viewBox="0 0 40 32">
+      <rect x="1.5" y="1.5" width="37" height="29" rx="10" fill="none" stroke="#e9eef5" stroke-width="2"/>
+      <circle cx="14" cy="16" r="3.8" fill="#e9eef5"/>
+      <circle cx="26" cy="16" r="3.8" fill="#e9eef5"/>
+    </symbol>
+    <symbol id="bot-alto" viewBox="0 0 40 32">
+      <rect x="1.5" y="1.5" width="37" height="29" rx="10" fill="none" stroke="#ff8a5b" stroke-width="2"/>
+      <circle cx="14" cy="16" r="3.8" fill="#ff8a5b"/>
+      <circle cx="26" cy="16" r="3.8" fill="#ff8a5b"/>
+    </symbol>
+    <symbol id="bot-ext" viewBox="0 0 40 32">
+      <rect x="1.5" y="1.5" width="37" height="29" rx="10" fill="none" stroke="#79c0ff" stroke-width="2"/>
+      <circle cx="14" cy="16" r="3.8" fill="#79c0ff"/>
+      <circle cx="26" cy="16" r="3.8" fill="#79c0ff"/>
+    </symbol>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#8b97a8"/>
+    </marker>
+    <marker id="a-alto" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#ff8a5b"/>
+    </marker>
+  </defs>
+
+  <rect width="1120" height="1040" fill="#0b0f16"/>
+
+  <!-- ── título ────────────────────────────────────────────────────────── -->
+  <text x="560" y="46" text-anchor="middle" font-size="25" fill="#e9eef5">Ronda orquestada — tandas, carril y barrera</text>
+  <text x="560" y="74" text-anchor="middle" font-size="14" fill="#8b97a8">el riesgo de cada bloque decide cuánto se verifica y también cuándo</text>
+
+  <!-- ── orquestador ───────────────────────────────────────────────────── -->
+  <use href="#bot" x="540" y="102" width="40" height="32"/>
+  <rect x="280" y="150" width="560" height="66" rx="10" fill="none" stroke="#e9eef5" stroke-width="1.6"/>
+  <text x="560" y="180" text-anchor="middle" font-size="15" fill="#e9eef5">SPEC · contrato · reparto en tandas · clasificación de riesgo</text>
+  <text x="560" y="202" text-anchor="middle" font-size="12" fill="#8b97a8">artefactos de coordinación — los fija el orquestador, y no construye ninguno</text>
+
+  <path d="M560 216 V244" stroke="#8b97a8" stroke-width="1.6" fill="none"/>
+  <path d="M190 244 H930" stroke="#8b97a8" stroke-width="1.6" fill="none"/>
+  <path d="M190 244 V264" stroke="#8b97a8" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
+  <path d="M560 244 V264" stroke="#8b97a8" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
+  <path d="M930 244 V264" stroke="#8b97a8" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
+
+  <!-- ── tanda 1: tres bloques con dueño exclusivo ─────────────────────── -->
+  <text x="30" y="298" font-size="12" fill="#8b97a8" letter-spacing="1.5">TANDA 1</text>
+
+  <!-- bloque A -->
+  <rect x="50" y="272" width="280" height="84" rx="10" fill="none" stroke="#e9eef5" stroke-width="1.6"/>
+  <use href="#bot" x="66" y="286" width="30" height="24"/>
+  <text x="106" y="306" font-size="15" fill="#e9eef5">Bloque A · opus</text>
+  <rect x="248" y="284" width="66" height="22" rx="11" fill="none" stroke="#ff8a5b" stroke-width="1.4"/>
+  <text x="281" y="299" text-anchor="middle" font-size="11" fill="#ff8a5b" letter-spacing="0.8">ALTO</text>
+  <text x="66" y="338" font-size="12" fill="#8b97a8">dueño exclusivo de sus archivos</text>
+
+  <!-- bloque B -->
+  <rect x="420" y="272" width="280" height="84" rx="10" fill="none" stroke="#e9eef5" stroke-width="1.6"/>
+  <use href="#bot" x="436" y="286" width="30" height="24"/>
+  <text x="476" y="306" font-size="15" fill="#e9eef5">Bloque B · sonnet</text>
+  <rect x="606" y="284" width="78" height="22" rx="11" fill="none" stroke="#e3b341" stroke-width="1.4"/>
+  <text x="645" y="299" text-anchor="middle" font-size="11" fill="#e3b341" letter-spacing="0.8">MEDIO</text>
+  <text x="436" y="338" font-size="12" fill="#8b97a8">dueño exclusivo de sus archivos</text>
+
+  <!-- bloque C -->
+  <rect x="790" y="272" width="280" height="84" rx="10" fill="none" stroke="#e9eef5" stroke-width="1.6"/>
+  <use href="#bot" x="806" y="286" width="30" height="24"/>
+  <text x="846" y="306" font-size="15" fill="#e9eef5">Bloque C · sonnet</text>
+  <rect x="982" y="284" width="70" height="22" rx="11" fill="none" stroke="#8b97a8" stroke-width="1.4"/>
+  <text x="1017" y="299" text-anchor="middle" font-size="11" fill="#8b97a8" letter-spacing="0.8">BAJO</text>
+  <text x="806" y="338" font-size="12" fill="#8b97a8">dueño exclusivo de sus archivos</text>
+
+  <!-- ── carril: el bloque alto no espera ──────────────────────────────── -->
+  <text transform="translate(32,452) rotate(-90)" text-anchor="middle" font-size="12" fill="#ff8a5b" letter-spacing="2">CARRIL</text>
+
+  <path d="M190 356 V392" stroke="#ff8a5b" stroke-width="1.8" fill="none" marker-end="url(#a-alto)"/>
+  <text x="204" y="379" font-size="11.5" fill="#ff8a5b">al cerrar A, sin esperar a B ni a C</text>
+
+  <rect x="50" y="396" width="280" height="80" rx="10" fill="none" stroke="#ff8a5b" stroke-width="1.8"/>
+  <use href="#bot-alto" x="66" y="410" width="30" height="24"/>
+  <text x="106" y="430" font-size="15" fill="#ff8a5b">2–4 lentes adversariales</text>
+  <text x="66" y="450" font-size="12" fill="#8b97a8">opus · una lente distinta cada una</text>
+  <text x="66" y="468" font-size="12" fill="#8b97a8">refutar, no revisar · acceso al sistema real</text>
+
+  <path d="M190 476 V552" stroke="#ff8a5b" stroke-width="1.8" fill="none" marker-end="url(#a-alto)"/>
+
+  <!-- ── medio y bajo esperan ──────────────────────────────────────────── -->
+  <path d="M560 356 V552" stroke="#8b97a8" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
+  <text x="572" y="452" font-size="11.5" fill="#8b97a8">espera</text>
+  <path d="M930 356 V552" stroke="#8b97a8" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
+  <text x="942" y="452" font-size="11.5" fill="#8b97a8">espera</text>
+
+  <!-- ── la barrera ────────────────────────────────────────────────────── -->
+  <path d="M30 564 H1090" stroke="#e9eef5" stroke-width="1.6" stroke-dasharray="7 7" fill="none"/>
+  <text x="560" y="586" text-anchor="middle" font-size="12" fill="#e9eef5" letter-spacing="1.5">BARRERA — cierre de tanda · nada cruza sin visto bueno</text>
+
+  <rect x="110" y="600" width="900" height="106" rx="10" fill="none" stroke="#e9eef5" stroke-width="1.6"/>
+  <text x="136" y="630" font-size="15" fill="#e9eef5">Aquí, y solo aquí, lo que no se ve mirando un bloque solo</text>
+  <text x="136" y="658" font-size="12.5" fill="#8b97a8">lente única del riesgo medio (sonnet)  ·  revisión del orquestador contra los criterios del SPEC (riesgo bajo)</text>
+  <text x="136" y="680" font-size="12.5" fill="#8b97a8">contrato entre bloques  ·  deduplicación de hallazgos  ·  decisión de qué entra y qué se devuelve</text>
+  <text x="136" y="698" font-size="11.5" fill="#8b97a8" font-style="italic">un NO CUMPLE aquí puede cambiar qué entra de los demás — por eso se decide junto</text>
+
+  <path d="M560 706 V740" stroke="#8b97a8" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
+
+  <!-- ── codex ─────────────────────────────────────────────────────────── -->
+  <rect x="280" y="740" width="560" height="80" rx="10" fill="none" stroke="#79c0ff" stroke-width="1.8"/>
+  <use href="#bot-ext" x="300" y="756" width="30" height="24"/>
+  <text x="340" y="776" font-size="15" fill="#79c0ff">Codex — revisor externo, siempre</text>
+  <text x="300" y="796" font-size="12" fill="#8b97a8">otra familia de modelos: no reconoce tus decisiones como propias</text>
+  <text x="300" y="812" font-size="12" fill="#8b97a8">SPEC literal · evidencia archivo:línea · read-only</text>
+
+  <path d="M560 820 V854" stroke="#8b97a8" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
+
+  <!-- ── commit ────────────────────────────────────────────────────────── -->
+  <rect x="330" y="854" width="460" height="56" rx="10" fill="none" stroke="#e9eef5" stroke-width="1.6"/>
+  <text x="560" y="880" text-anchor="middle" font-size="15" fill="#e9eef5">commit único — solo el orquestador</text>
+  <text x="560" y="899" text-anchor="middle" font-size="11.5" fill="#8b97a8">rutas exactas, nunca git add -A</text>
+
+  <path d="M560 910 V944" stroke="#8b97a8" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
+
+  <!-- ── redactor del informe ──────────────────────────────────────────── -->
+  <rect x="280" y="944" width="560" height="80" rx="10" fill="none" stroke="#e9eef5" stroke-width="1.6"/>
+  <use href="#bot" x="300" y="960" width="30" height="24"/>
+  <text x="340" y="980" font-size="15" fill="#e9eef5">agente redactor → informe HTML</text>
+  <text x="300" y="1000" font-size="12" fill="#8b97a8">recibe la evidencia ya juzgada · no decide, no añade, no cambia una marca</text>
+  <text x="300" y="1016" font-size="12" fill="#8b97a8">el juicio y la firma siguen siendo del orquestador</text>
+</svg>

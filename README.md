@@ -11,11 +11,23 @@ La IA optimiza lo que le pediste, no lo que querías. Y un agente que reporta `"
 | Skill | Qué hace | Cuándo se dispara |
 |---|---|---|
 | **`spec`** | Convierte una idea en un `SPEC.md` con criterios que se contestan **sí o no**. El objetivo real de negocio, qué queda fuera, y qué acciones requieren permiso humano. | Al empezar cualquier construcción de varios pasos |
-| **`orquestador`** | Reparte el trabajo en bloques con **dueño exclusivo de archivos**, lanza agentes en paralelo, verifica por riesgo y hace **un solo commit** que documenta la ronda entera. | Cuando el trabajo se parte en 3+ frentes, o toca base de datos, autenticación, dinero o producción |
+| **`orquestador`** | Reparte el trabajo en bloques con **dueño exclusivo de archivos**, lanza agentes en paralelo, verifica por riesgo —y **en carril**, sin esperar, lo que de verdad duele— y hace **un solo commit** que documenta la ronda entera. | Cuando el trabajo se parte en 3+ frentes, o toca base de datos, autenticación, dinero o producción |
 | **`verificar-spec`** | Verificación **adversarial**: intenta demostrar que NO cumple, criterio por criterio y con evidencia `archivo:línea`. Devuelve `CUMPLE` / `NO CUMPLE` / `NO VERIFICABLE`. | Antes de integrar o commitear, o cuando un agente dice «completado» y nadie lo contrastó |
 | **`codex`** | Invoca el CLI de [Codex](https://developers.openai.com/codex/cli) como segundo par de ojos. Otra familia de modelos: no reconoce tus decisiones y por eso no las lee como correctas. | Al cerrar una ronda, o cuando pidas una segunda opinión que no comparta tus sesgos |
 
 Las cuatro se usan juntas, pero `spec` y `verificar-spec` funcionan solas si lo único que quieres es dejar de entregar a ciegas.
+
+---
+
+## Cómo se ve una ronda
+
+![Flujo de una ronda orquestada: tandas, carril y barrera](skills/orquestador/assets/flujo-de-ronda.svg)
+
+Tres ideas que el dibujo cuenta mejor que un párrafo:
+
+- **La propiedad exclusiva de archivos es lo que hace posible todo lo demás.** Un bloque = un dueño. Sin eso, verificar un bloque mientras otro escribe debajo es verificar un blanco móvil.
+- **El riesgo decide cuánto se verifica y también cuándo.** Lo que puede exponer un dato, dejar a alguien fuera o equivocar un importe se refuta **en carril**, en cuanto ese bloque cierra. Lo demás espera a la barrera. Las mismas lentes, antes — y el defecto grave aparece mientras aún se puede reencargar sin deshacer lo que otros construyeron encima.
+- **La barrera no desaparece.** Hay defectos que solo existen **entre** bloques: una firma que nadie respetó, el mismo hallazgo contado tres veces, un `NO CUMPLE` que cambia qué entra de los demás. Eso solo se ve con todo delante.
 
 ---
 
@@ -99,6 +111,8 @@ El orquestador trae un presupuesto medido de una ronda real —6 bloques, 10 500
 | Defectos confirmados | 14, todos con reproducción |
 
 **El aparato no es gratis y no siempre compensa.** El paso 1 del orquestador existe justo para eso: medir antes de gastar, y decir en voz alta por qué eliges la vía corta cuando la eliges. Para un formulario, montar la ronda entera quema tokens; para una migración, saltársela quema producción.
+
+Fíjate en la distancia entre el cómputo de los agentes (2 h 44) y el reloj (4 h 20): **el cuello de botella no eran los agentes, era esperarlos**. De ahí sale el carril — no ahorra un solo token, pero devuelve buena parte de ese hueco y adelanta el hallazgo grave a cuando todavía es barato arreglarlo.
 
 ---
 
