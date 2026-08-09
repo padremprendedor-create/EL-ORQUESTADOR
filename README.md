@@ -1,4 +1,4 @@
-# spec-driven-claude
+# spec-driven-claude-codex
 
 **El plano antes del martillo.** Cuatro skills de [Claude Code](https://claude.com/claude-code) para construir con agentes de IA sin que el resultado salga correcto y aun así inútil.
 
