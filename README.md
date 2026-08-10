@@ -1,4 +1,6 @@
-# spec-driven-claude-codex
+# EL-ORQUESTADOR
+
+[![CI](https://github.com/padremprendedor-create/EL-ORQUESTADOR/actions/workflows/ci.yml/badge.svg)](https://github.com/padremprendedor-create/EL-ORQUESTADOR/actions/workflows/ci.yml) ![licencia MIT](https://img.shields.io/badge/licencia-MIT-blue) ![Claude Code](https://img.shields.io/badge/Claude%20Code-skills-8a5cf6) ![proyecto en español](https://img.shields.io/badge/idioma-español-ffd24a)
 
 **El plano antes del martillo.** Cuatro skills de [Claude Code](https://claude.com/claude-code) para construir con agentes de IA sin que el resultado salga correcto y aun así inútil.
 
@@ -45,20 +47,38 @@ Las otras tres barreras, por si recortas de más:
 
 ---
 
+## Requisitos
+
+No hay nada que compilar ni que instalar: son **archivos markdown** que Claude Code lee. Pesan 100 KB en total.
+
+| | |
+|---|---|
+| **Imprescindible** | [Claude Code](https://claude.com/claude-code) — CLI, app de escritorio o extensión del IDE, da igual |
+| **Sistema** | Cualquiera donde corra Claude Code: Windows, macOS o Linux |
+| **Disco** | 100 KB |
+| **Para la skill `codex`** | El [CLI de Codex](https://developers.openai.com/codex/cli) y una cuenta de OpenAI. Sin él, las otras tres funcionan igual: te saltas el paso 7 |
+| **Para el `orquestador`** | Que tu Claude Code pueda lanzar subagentes, y **presupuesto de tokens** — ver [Lo que esto cuesta](#lo-que-esto-cuesta) |
+
+**Lo que de verdad limita aquí no es la máquina, son los tokens.** El orquestador lanza agentes en paralelo y una ronda grande se come millones de tokens; el paso 1 de la skill existe justo para decidir si compensa antes de gastarlos.
+
+> **El proyecto está escrito en español.** Las cuatro skills, sus plantillas y este README. Claude Code funciona igual en cualquier idioma, pero si no lees español vas a clonar 100 KB que no te sirven — mejor saberlo antes.
+
+---
+
 ## Instalación
 
 Las skills viven en `~/.claude/skills/`. Clona y copia:
 
 ```bash
-git clone https://github.com/padremprendedor-create/spec-driven-claude.git
-cp -r spec-driven-claude/skills/* ~/.claude/skills/
+git clone https://github.com/padremprendedor-create/EL-ORQUESTADOR.git
+cp -r EL-ORQUESTADOR/skills/* ~/.claude/skills/
 ```
 
 En Windows con PowerShell:
 
 ```powershell
-git clone https://github.com/padremprendedor-create/spec-driven-claude.git
-Copy-Item -Recurse spec-driven-claude\skills\* $HOME\.claude\skills\
+git clone https://github.com/padremprendedor-create/EL-ORQUESTADOR.git
+Copy-Item -Recurse EL-ORQUESTADOR\skills\* $HOME\.claude\skills\
 ```
 
 Abre Claude Code y pídele *"escribe el SPEC de esto"* o *"orquesta esto"*. Si la skill no aparece, comprueba que la carpeta se llama igual que el campo `name` de su `SKILL.md`.
@@ -68,9 +88,9 @@ Abre Claude Code y pídele *"escribe el SPEC de esto"* o *"orquesta esto"*. Si l
 Necesita el [CLI de Codex](https://developers.openai.com/codex/cli) instalado **y dos perfiles** que no vienen de fábrica. Están en la carpeta `codex/` de este repo:
 
 ```bash
-cp spec-driven-claude/codex/revisor.config.toml     ~/.codex/
-cp spec-driven-claude/codex/constructor.config.toml ~/.codex/
-cp spec-driven-claude/codex/AGENTS.md               ~/.codex/AGENTS.md   # ojo si ya tienes uno
+cp EL-ORQUESTADOR/codex/revisor.config.toml     ~/.codex/
+cp EL-ORQUESTADOR/codex/constructor.config.toml ~/.codex/
+cp EL-ORQUESTADOR/codex/AGENTS.md               ~/.codex/AGENTS.md   # ojo si ya tienes uno
 ```
 
 - **`revisor`** — `sandbox_mode = "read-only"`. Es el perfil por defecto: no puede escribir nada.
@@ -135,6 +155,14 @@ agente se puso.
 ```
 
 Si tu proyecto tiene rondas con agentes fijos, canales propios o un vault, deriva tu propia skill de orquestación. **Lo que se deriva es el aparato —qué agentes, qué canales, qué vault—, nunca la doctrina.**
+
+---
+
+## Antes de instalarlo, dos cosas
+
+Seguir estas skills hace que un agente lance subagentes, reescriba archivos, aplique migraciones y commitee. Los frenos son reglas escritas, no candados técnicos, y hay **un fallo silencioso que conviene comprobar a mano**: un perfil de Codex mal escrito no da error, se ignora, y la corrida cae a modo escritura cuando creías estar en solo lectura. Todo eso, con lo que hay que comprobar, está en **[SECURITY.md](SECURITY.md)**.
+
+Y si vas a proponer un cambio: **[CONTRIBUTING.md](CONTRIBUTING.md)** dice qué se acepta, qué no, y cuál es la única frase del método que no se toca.
 
 ---
 

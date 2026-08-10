@@ -1,0 +1,9 @@
+# Normaliza finales de linea: LF en el repositorio, lo que toque en cada working
+# copy. Sin esto, un clon en Windows y otro en Linux producen diffs de fichero
+# entero y comparar una skill con la version instalada en ~/.claude/skills se
+# vuelve inutil — que es exactamente lo que paso una vez.
+* text=auto eol=lf
+
+# Binarios: que git no toque nada.
+*.png binary
+*.jpg binary
