@@ -396,6 +396,12 @@ de defenderte: en las rondas medidas la tuvo siempre.
   archivos que ningún agente tuyo podría tocar, comprueba con
   `mcp__ccd_session_mgmt__list_sessions` antes de sacar conclusiones. **Una rama no aísla un
   directorio de trabajo compartido.**
+- **Y la contrapartida de esa regla: la precisión exige completitud.** Rutas exactas
+  significa que lo que no nombres se queda fuera **en silencio**. Pasó: un commit se llevó
+  tres archivos en su versión vieja porque no estaban en la lista, y el mensaje describía
+  cambios que no contenía. **`git status --short` DESPUÉS de commitear tiene que salir
+  vacío** — si algo sigue modificado, se te quedó fuera. Y si corres un validador, córrelo
+  también después: el de antes mira tu árbol de trabajo, no lo que acabas de commitear.
 - Un bloque con veredicto `NO CUMPLE` **no entra**, aunque su JSON diga `completado`.
 - **Si el push es el despliegue, el push requiere permiso humano.** Commitea en rama y
   espera; integrar no es desplegar.
