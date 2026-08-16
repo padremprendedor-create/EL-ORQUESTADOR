@@ -1,0 +1,17 @@
+{
+  "name": "el-orquestador",
+  "description": "Spec-driven development con agentes en paralelo: escribe un SPEC con criterios verificables antes de construir, reparte el trabajo en bloques con dueño exclusivo de archivos, verifica por riesgo con lentes adversariales, cierra con un revisor externo (Codex) y entrega un informe con cada afirmación marcada como comprobada o no. Incluye las cuatro skills del método y los dos agentes que hacen el trabajo repetido: el constructor de bloque y la lente adversarial.",
+  "author": {
+    "name": "Junior Alvarez Velaquez"
+  },
+  "homepage": "https://github.com/padremprendedor-create/EL-ORQUESTADOR",
+  "license": "MIT",
+  "keywords": [
+    "spec-driven",
+    "orquestacion",
+    "subagentes",
+    "verificacion",
+    "code-review",
+    "espanol"
+  ]
+}
