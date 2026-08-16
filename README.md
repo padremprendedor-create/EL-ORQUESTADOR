@@ -134,19 +134,53 @@ Si una skill te manda a algo que no tienes, sáltate ese paso: ninguno de los tr
 
 ## Lo que esto cuesta
 
-El orquestador trae un presupuesto medido de una ronda real —6 bloques, 10 500 líneas, 54 archivos— para que puedas decidir si te compensa antes de arrancar:
+Tres rondas reales, medidas mientras ocurrían. No es un benchmark: es un mismo equipo
+usando esto en sus propios proyectos, y está aquí para que puedas decidir si te compensa
+**antes** de arrancar.
 
-| | |
-|---|---|
-| Tokens de subagente | 2 320 106 |
-| De eso, verificación | 734 535 — **31,7 %** |
-| Cómputo de agentes | 2 h 44 · camino crítico ≈ 1 h 30 |
-| Reloj de la sesión | ≈ 4 h 20 |
-| Defectos confirmados | 14, todos con reproducción |
+| | Ronda 1 | Ronda 2 | Ronda 3 |
+|---|---|---|---|
+| | 6 bloques + 5 lentes | 11 bloques + 3 lentes + 1 reparación | 5 bloques + 4 lentes |
+| Tokens de subagente | 2 320 106 | 3 293 259 | 2 148 571 |
+| Verificación | **31,7 %** | **20,1 %** | **28,4 %** |
+| Cómputo sumado | 2 h 44 | 4 h 25 | 1 h 14 |
+| Camino crítico | ≈ 1 h 30 | 1 h 24 | ≈ 25 min |
+| Código | 10 500 líneas · 54 archivos | +12 740 / −1 594 · 72 archivos | +1 956 / −10 · 15 archivos |
 
-**El aparato no es gratis y no siempre compensa.** El paso 1 del orquestador existe justo para eso: medir antes de gastar, y decir en voz alta por qué eliges la vía corta cuando la eliges. Para un formulario, montar la ronda entera quema tokens; para una migración, saltársela quema producción.
+**Entre 2 y 3,3 millones de tokens por ronda.** El aparato no es gratis y no siempre
+compensa: el paso 1 existe justo para medir antes de gastar, y para decir en voz alta por
+qué eliges la vía corta cuando la eliges. Para un formulario, montar la ronda entera quema
+tokens; para una migración, saltársela quema producción.
 
-Fíjate en la distancia entre el cómputo de los agentes (2 h 44) y el reloj (4 h 20): **el cuello de botella no eran los agentes, era esperarlos**. De ahí sale el carril — no ahorra un solo token, pero devuelve buena parte de ese hueco y adelanta el hallazgo grave a cuando todavía es barato arreglarlo.
+### Cuatro cosas que las tres rondas juntas enseñan y una sola no
+
+**El tamaño del entregable no predice el coste.** La ronda 2 produjo **12 740 líneas** y la
+3 apenas **2 000**, y costaron parecido. Lo que se paga es el número de agentes y cuánto
+verificas, no cuánto código sale.
+
+**Verificar por riesgo funciona — cuando de verdad clasificas.** La ronda 1 aplicó lentes a
+todo por igual: 31,7 %. La 2 las puso **solo sobre el único bloque de riesgo alto** (una
+migración) y bajó al 20,1 %, encontrando los tres defectos graves igual, porque **estaban
+todos en el SQL**. La ronda 3 volvió a subir al 28,4 % — y el motivo es la lección más útil
+de las tres: **ninguno de sus cinco bloques se clasificó como «bajo»**. Si al repartir no
+te cae ni uno en bajo, casi seguro estás inflando, y ahí se te va el ahorro.
+
+**Arreglar lo que las lentes encuentran cuesta casi tanto como encontrarlo.** En la ronda 2
+las tres lentes costaron 508 471 tokens; reparar sus 17 hallazgos costó otros 306 927. De
+20,1 % a **32,3 %** sumando las dos cosas. Es dinero bien gastado —eran defectos reales en
+una migración— pero preséntalo entero: la verificación no acaba en el veredicto.
+
+**El cuello de botella no son los agentes: es esperarlos.** En las tres, el camino crítico
+es entre la mitad y un cuarto del cómputo sumado. De ahí sale el carril — no ahorra un solo
+token, pero devuelve buena parte de ese hueco y **adelanta el hallazgo grave a cuando
+todavía es barato arreglarlo**.
+
+> **Sobre el dinero: aquí no hay una cifra en euros, y es a propósito.** Estos números son
+> lo que el arnés reporta al cerrar cada agente; no está claro si cuenta solo salida o
+> entrada y salida, el contexto del propio orquestador no está incluido, y sobre
+> suscripción no se factura por token. Convertirlo a dinero describiría un gasto que nadie
+> hizo. Tokens medidos antes que euros inventados — es la misma regla que la skill le
+> impone al informe de cada ronda.
 
 ---
 

@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 1040" width="1120" height="1040" font-family="ui-sans-serif, -apple-system, 'Segoe UI', system-ui, sans-serif">
-  <title>Flujo de una ronda orquestada: tandas, carril y barrera</title>
-  <desc>El orquestador escribe SPEC, contrato y reparto. Lanza los bloques de una tanda en paralelo, cada uno con dueño exclusivo de sus archivos. Los bloques de riesgo alto disparan sus lentes adversariales en carril, sin esperar a los hermanos; los de riesgo medio y bajo esperan a la barrera de cierre de tanda, donde también se revisa el contrato entre bloques y se decide qué entra. Después, Codex verifica el SPEC como revisor externo, el orquestador hace el commit único y un agente redactor escribe el informe HTML.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-60 0 1180 1040" width="1180" height="1040" font-family="ui-sans-serif, -apple-system, 'Segoe UI', system-ui, sans-serif">
+  <title>Flujo de una ronda orquestada: lente sobre el plano, tandas, carril, barrera y reencargo</title>
+  <desc>El orquestador escribe SPEC, contrato y reparto. Antes de lanzar nada, una lente barata revisa ese plan buscando un valor congelado mal puesto, un criterio que no va a poder cerrarse o una contradicción con el contrato. Lanza los bloques de una tanda en paralelo, cada uno con dueño exclusivo de sus archivos. Los bloques de riesgo alto disparan sus lentes adversariales en carril, sin esperar a los hermanos; los de riesgo medio y bajo esperan a la barrera de cierre de tanda, donde también se revisa el contrato entre bloques y se decide qué entra. Cuando una lente confirma un defecto real, el bloque se reencarga: vuelve a su dueño original, nunca a un agente nuevo — y si una lente de ese bloque sigue viva, reencargar invalida sus hallazgos, porque convierte los archivos en un blanco móvil. Después, Codex verifica el SPEC como revisor externo, el orquestador hace el commit único y un agente redactor escribe el informe HTML.</desc>
 
   <defs>
     <symbol id="bot" viewBox="0 0 40 32">
@@ -26,7 +26,7 @@
     </marker>
   </defs>
 
-  <rect width="1120" height="1040" fill="#0b0f16"/>
+  <rect x="-60" y="0" width="1180" height="1040" fill="#0b0f16"/>
 
   <!-- ── título ────────────────────────────────────────────────────────── -->
   <text x="560" y="46" text-anchor="middle" font-size="25" fill="#e9eef5">Ronda orquestada — tandas, carril y barrera</text>
@@ -38,6 +38,20 @@
   <text x="560" y="180" text-anchor="middle" font-size="15" fill="#e9eef5">SPEC · contrato · reparto en tandas · clasificación de riesgo</text>
   <text x="560" y="202" text-anchor="middle" font-size="12" fill="#8b97a8">artefactos de coordinación — los fija el orquestador, y no construye ninguno</text>
 
+  <!-- ── lente sobre el plano (paso 3b) — revisa el plan, no construye ──── -->
+  <path d="M840 168 H885" stroke="#8b97a8" stroke-width="1.4" fill="none" marker-end="url(#a)"/>
+  <text x="862" y="160" text-anchor="middle" font-size="9" fill="#8b97a8">lee</text>
+  <path d="M885 210 H840" stroke="#8b97a8" stroke-width="1.4" fill="none" marker-end="url(#a)"/>
+  <text x="862" y="226" text-anchor="middle" font-size="9" fill="#8b97a8">veredicto</text>
+
+  <rect x="885" y="140" width="225" height="112" rx="10" fill="none" stroke="#e9eef5" stroke-width="1.6"/>
+  <use href="#bot" x="900" y="150" width="26" height="21"/>
+  <text x="934" y="166" font-size="13.5" fill="#e9eef5">lente sobre el plano</text>
+  <text x="900" y="186" font-size="10.5" fill="#8b97a8">SPEC + contrato, antes de lanzar</text>
+  <text x="900" y="204" font-size="10.5" fill="#8b97a8">3 preguntas: valor mal ·</text>
+  <text x="900" y="221" font-size="10.5" fill="#8b97a8">criterio que no cierra ·</text>
+  <text x="900" y="238" font-size="10.5" fill="#8b97a8">contradice al contrato</text>
+
   <path d="M560 216 V244" stroke="#8b97a8" stroke-width="1.6" fill="none"/>
   <path d="M190 244 H930" stroke="#8b97a8" stroke-width="1.6" fill="none"/>
   <path d="M190 244 V264" stroke="#8b97a8" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
@@ -45,7 +59,7 @@
   <path d="M930 244 V264" stroke="#8b97a8" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
 
   <!-- ── tanda 1: tres bloques con dueño exclusivo ─────────────────────── -->
-  <text x="30" y="298" font-size="12" fill="#8b97a8" letter-spacing="1.5">TANDA 1</text>
+  <text x="30" y="264" font-size="12" fill="#8b97a8" letter-spacing="1.5">TANDA 1</text>
 
   <!-- bloque A -->
   <rect x="50" y="272" width="280" height="84" rx="10" fill="none" stroke="#e9eef5" stroke-width="1.6"/>
@@ -85,11 +99,19 @@
 
   <path d="M190 476 V552" stroke="#ff8a5b" stroke-width="1.8" fill="none" marker-end="url(#a-alto)"/>
 
+  <!-- ── reencargo (paso 6b): la lente de carril devuelve el bloque A ───── -->
+  <path d="M50 402 H-30 V314 H50" stroke="#ff8a5b" stroke-width="1.6" stroke-dasharray="6 4" fill="none" marker-end="url(#a-alto)"/>
+  <text x="-28" y="396" font-size="10.5" fill="#ff8a5b">reencargo</text>
+
   <!-- ── medio y bajo esperan ──────────────────────────────────────────── -->
   <path d="M560 356 V552" stroke="#8b97a8" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
   <text x="572" y="452" font-size="11.5" fill="#8b97a8">espera</text>
   <path d="M930 356 V552" stroke="#8b97a8" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
   <text x="942" y="452" font-size="11.5" fill="#8b97a8">espera</text>
+
+  <!-- ── advertencia del reencargo: el corazón de la regla ───────────────── -->
+  <text x="580" y="500" font-size="11" fill="#ff8a5b" font-style="italic">reencargar con una lente viva invalida sus hallazgos</text>
+  <text x="580" y="519" font-size="11" fill="#ff8a5b" font-style="italic">— convierte sus archivos en un blanco móvil</text>
 
   <!-- ── la barrera ────────────────────────────────────────────────────── -->
   <path d="M30 564 H1090" stroke="#e9eef5" stroke-width="1.6" stroke-dasharray="7 7" fill="none"/>
@@ -100,6 +122,10 @@
   <text x="136" y="658" font-size="12.5" fill="#8b97a8">lente única del riesgo medio (sonnet)  ·  revisión del orquestador contra los criterios del SPEC (riesgo bajo)</text>
   <text x="136" y="680" font-size="12.5" fill="#8b97a8">contrato entre bloques  ·  deduplicación de hallazgos  ·  decisión de qué entra y qué se devuelve</text>
   <text x="136" y="698" font-size="11.5" fill="#8b97a8" font-style="italic">un NO CUMPLE aquí puede cambiar qué entra de los demás — por eso se decide junto</text>
+
+  <!-- ── reencargo (paso 6b): la barrera devuelve el bloque a su dueño ───── -->
+  <path d="M1010 615 H1090 V314 H1070" stroke="#ff8a5b" stroke-width="1.6" stroke-dasharray="6 4" fill="none" marker-end="url(#a-alto)"/>
+  <text transform="translate(1104,460) rotate(-90)" text-anchor="middle" font-size="10.5" fill="#ff8a5b" letter-spacing="1">REENCARGO</text>
 
   <path d="M560 706 V740" stroke="#8b97a8" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
 

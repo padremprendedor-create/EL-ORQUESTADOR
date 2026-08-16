@@ -17,9 +17,28 @@ Ronda de 6 bloques constructores + 5 lentes, 10 500 líneas, 54 archivos, 4 comm
 | Bloque más caro | 307 k (y era sonnet) |
 | Defectos confirmados | 14, todos con reproducción |
 
-Una ronda posterior, más pequeña (5 bloques + 4 lentes, ~2 000 líneas): **2 148 571
-tokens**, verificación **28,4 %**, camino crítico ≈ 25 min frente a 1 h 14 de cómputo
-sumado. Le sobraba una lente — ver el autochequeo en `verificacion.md`.
+## Las otras dos rondas medidas
+
+**Ronda 2 — la que demuestra el método** (11 bloques + 3 lentes + 1 de reparación, 12 740
+líneas, 72 archivos): **3 293 259 tokens**, cómputo 4 h 25, camino crítico **1 h 24**. Las
+lentes cayeron **solo sobre el único bloque de riesgo alto** —una migración— y costaron
+**508 471 tokens, el 20,1 %**, encontrando los tres defectos graves igual: **estaban todos
+en el SQL**.
+
+**Pero cuenta también lo que cuesta reparar.** Arreglar esos 17 hallazgos costó otros
+**306 927 tokens**: de 20,1 % a **32,3 %** sumando las dos cosas. Es dinero bien gastado y
+hay que presentarlo entero — la verificación no acaba en el veredicto.
+
+**Ronda 3 — el contraejemplo** (5 bloques + 4 lentes, ~2 000 líneas): **2 148 571 tokens**,
+verificación **28,4 %**, camino crítico ≈ 25 min frente a 1 h 14 de cómputo sumado. Subió
+respecto a la 2 por una razón concreta y evitable: **ninguno de sus cinco bloques se
+clasificó como «bajo»**. Ver el autochequeo en `verificacion.md`.
+
+## Lo que las tres juntas enseñan
+
+**El tamaño del entregable no predice el coste.** La ronda 2 produjo 12 740 líneas y la 3
+unas 2 000, y costaron parecido. Se paga por número de agentes y por cuánto verificas, no
+por cuánto código sale. Cuando midas si compensa, cuenta agentes, no líneas.
 
 **La ceremonia no es gratis.** 2,32 M de tokens y 4 h 20 de reloj se pagan cuando hay
 10 500 líneas que pagar. Para un formulario, la vía corta del paso 1.
