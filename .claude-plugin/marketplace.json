@@ -1,0 +1,21 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "el-orquestador",
+  "description": "El método spec-driven con agentes en paralelo, en español: SPEC antes de construir, bloques con dueño exclusivo, verificación por riesgo y revisor externo.",
+  "owner": {
+    "name": "Junior Alvarez Velaquez",
+    "url": "https://github.com/padremprendedor-create"
+  },
+  "plugins": [
+    {
+      "name": "el-orquestador",
+      "description": "Spec-driven development con agentes en paralelo: SPEC con criterios verificables antes de construir, bloques con dueño exclusivo de archivos, verificación por riesgo con lentes adversariales, revisor externo y un informe donde cada afirmación va marcada como comprobada o no.",
+      "author": {
+        "name": "Junior Alvarez Velaquez"
+      },
+      "category": "development",
+      "source": "./plugins/el-orquestador",
+      "homepage": "https://github.com/padremprendedor-create/EL-ORQUESTADOR"
+    }
+  ]
+}

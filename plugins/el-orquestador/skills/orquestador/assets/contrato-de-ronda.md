@@ -83,6 +83,31 @@ Si un bloque no contesta a ningún criterio, está mal cortado.
 |---|---|---|
 | A | 1, 3 | <comando / consulta / pantalla> |
 
+### 4b. Los criterios que esta ronda NO va a poder cerrar
+
+**Rellena esto ANTES de lanzar, no al final.** En dos rondas seguidas se descubrió tarde:
+una acabó con siete criterios `NO VERIFICABLE` y la otra tenía dos condenados desde la
+hora cero — no existía en producción el dato que hacían falta para mirarlos. Escribirlo
+aquí convierte un descubrimiento de la hora cuatro en una predicción de la hora cero, y
+le pone las expectativas correctas a quien encargó el trabajo.
+
+Las tres causas que se repiten:
+
+- **Hace falta una persona delante de una pantalla.** Detrás de un login que un agente no
+  teclea, un recorrido táctil, un juicio de diseño, una lectura de copy. `tsc` en verde
+  no prueba que algo funcione: en una ronda, un bloque encontró haciendo clic un fallo
+  que reventaba la página y que los tres comandos base pasaban por alto.
+- **Falta el dato en producción.** El criterio mide algo sobre una fila que todavía no
+  existe, y fabricarla es una escritura real sobre datos de gente.
+- **El arreglo vive fuera del alcance declarado.** Otro repo, otro servicio, la consola de
+  un proveedor. Si es así, **dilo en el SPEC en vez de darlo por bueno**: un criterio que
+  no se puede cumplir desde aquí se marca `NO CUMPLE` con su motivo, no se reescribe para
+  que pase.
+
+| Criterio | Por qué no se cierra en esta ronda | Qué haría falta | ¿Quién? |
+|---|---|---|---|
+| <n> | <persona / dato inexistente / fuera de alcance> | <la acción concreta> | <quién responde / otra ronda> |
+
 ---
 
 ## 5. Lista mínima de lectura por bloque

@@ -1,10 +1,10 @@
 # EL-ORQUESTADOR
 
-[![CI](https://github.com/padremprendedor-create/EL-ORQUESTADOR/actions/workflows/ci.yml/badge.svg)](https://github.com/padremprendedor-create/EL-ORQUESTADOR/actions/workflows/ci.yml) ![licencia MIT](https://img.shields.io/badge/licencia-MIT-blue) ![Claude Code](https://img.shields.io/badge/Claude%20Code-skills-8a5cf6) ![proyecto en español](https://img.shields.io/badge/idioma-español-ffd24a)
+[![CI](https://github.com/padremprendedor-create/EL-ORQUESTADOR/actions/workflows/ci.yml/badge.svg)](https://github.com/padremprendedor-create/EL-ORQUESTADOR/actions/workflows/ci.yml) ![licencia MIT](https://img.shields.io/badge/licencia-MIT-blue) ![Claude Code](https://img.shields.io/badge/Claude%20Code-plugin-8a5cf6) ![proyecto en español](https://img.shields.io/badge/idioma-español-ffd24a)
 
-**El plano antes del martillo.** Cuatro skills de [Claude Code](https://claude.com/claude-code) para construir con agentes de IA sin que el resultado salga correcto y aun así inútil.
+**El plano antes del martillo.** Un plugin de [Claude Code](https://claude.com/claude-code) —cuatro skills y dos agentes— para construir con agentes de IA sin que el resultado salga correcto y aun así inútil.
 
-La IA optimiza lo que le pediste, no lo que querías. Y un agente que reporta `"status": "completado"` te está dando su opinión, no una prueba. Estas cuatro skills cierran esos dos huecos: escribes qué significa «terminado» **antes** de construir, y lo contrasta alguien que no fue quien construyó.
+La IA optimiza lo que le pediste, no lo que querías. Y un agente que reporta `"status": "completado"` te está dando su opinión, no una prueba. Este plugin cierra esos dos huecos: escribes qué significa «terminado» **antes** de construir, y lo contrasta alguien que no fue quien construyó.
 
 ---
 
@@ -19,11 +19,20 @@ La IA optimiza lo que le pediste, no lo que querías. Y un agente que reporta `"
 
 Las cuatro se usan juntas, pero `spec` y `verificar-spec` funcionan solas si lo único que quieres es dejar de entregar a ciegas.
 
+Y **dos agentes**, que son el trabajo que se repite en cada ronda:
+
+| Agente | Qué es |
+|---|---|
+| **`bloque-constructor`** | Construye **un** bloque respetando la propiedad exclusiva de archivos. Lleva dentro los comandos que no puede correr en paralelo, «nunca commitees ni pushees», «producción es solo lectura» y el formato de reporte |
+| **`lente-adversarial`** | No construye: intenta **demostrar que un bloque está roto**. Lleva dentro «refutar, no revisar», reproducir contra el sistema real en vez de razonar sobre el código, y no volcar secretos en su reporte |
+
+Que sean agentes y no párrafos de un brief tiene una consecuencia que importa: **sus reglas se aplican tanto si quien orquesta se acordó de pegarlas como si no.**
+
 ---
 
 ## Cómo se ve una ronda
 
-![Flujo de una ronda orquestada: tandas, carril y barrera](skills/orquestador/assets/flujo-de-ronda.svg)
+![Flujo de una ronda orquestada: tandas, carril y barrera](plugins/el-orquestador/skills/orquestador/assets/flujo-de-ronda.svg)
 
 Tres ideas que el dibujo cuenta mejor que un párrafo:
 
@@ -67,30 +76,35 @@ No hay nada que compilar ni que instalar: son **archivos markdown** que Claude C
 
 ## Instalación
 
-Las skills viven en `~/.claude/skills/`. Clona y copia:
+Desde Claude Code, dos comandos:
+
+```
+/plugin marketplace add padremprendedor-create/EL-ORQUESTADOR
+/plugin install el-orquestador@el-orquestador
+```
+
+El plugin y el marketplace se llaman igual: este repo publica un solo plugin. Luego pídele *"escribe el SPEC de esto"* o *"orquesta esto"*.
+
+> **Los agentes llevan el prefijo del plugin.** Instalado así son `el-orquestador:bloque-constructor` y `el-orquestador:lente-adversarial`; copiados a mano (abajo), van a secas. Si ves `Agent type not found`, eso es lo primero que mirar — y lo segundo, reiniciar la sesión: **el registro de agentes se carga al arrancar**, así que uno recién instalado no aparece hasta la siguiente.
+
+### A mano, sin el gestor de plugins
 
 ```bash
 git clone https://github.com/padremprendedor-create/EL-ORQUESTADOR.git
-cp -r EL-ORQUESTADOR/skills/* ~/.claude/skills/
+cp -r EL-ORQUESTADOR/plugins/el-orquestador/skills/* ~/.claude/skills/
+cp -r EL-ORQUESTADOR/plugins/el-orquestador/agents/* ~/.claude/agents/
 ```
 
-En Windows con PowerShell:
-
-```powershell
-git clone https://github.com/padremprendedor-create/EL-ORQUESTADOR.git
-Copy-Item -Recurse EL-ORQUESTADOR\skills\* $HOME\.claude\skills\
-```
-
-Abre Claude Code y pídele *"escribe el SPEC de esto"* o *"orquesta esto"*. Si la skill no aparece, comprueba que la carpeta se llama igual que el campo `name` de su `SKILL.md`.
+Si una skill no aparece, comprueba que su carpeta se llama igual que el campo `name` de su `SKILL.md`: cuando no coinciden, **Claude Code no la encuentra y no avisa**. `node scripts/check-skills.mjs` lo comprueba por ti, junto con los manifiestos y los agentes.
 
 ### Si vas a usar la skill `codex`
 
-Necesita el [CLI de Codex](https://developers.openai.com/codex/cli) instalado **y dos perfiles** que no vienen de fábrica. Están en la carpeta `codex/` de este repo:
+Necesita el [CLI de Codex](https://developers.openai.com/codex/cli) instalado **y dos perfiles** que no vienen de fábrica. Están en `plugins/el-orquestador/codex/`:
 
 ```bash
-cp EL-ORQUESTADOR/codex/revisor.config.toml     ~/.codex/
-cp EL-ORQUESTADOR/codex/constructor.config.toml ~/.codex/
-cp EL-ORQUESTADOR/codex/AGENTS.md               ~/.codex/AGENTS.md   # ojo si ya tienes uno
+cp EL-ORQUESTADOR/plugins/el-orquestador/codex/revisor.config.toml     ~/.codex/
+cp EL-ORQUESTADOR/plugins/el-orquestador/codex/constructor.config.toml ~/.codex/
+cp EL-ORQUESTADOR/plugins/el-orquestador/codex/AGENTS.md               ~/.codex/AGENTS.md   # ojo si ya tienes uno
 ```
 
 - **`revisor`** — `sandbox_mode = "read-only"`. Es el perfil por defecto: no puede escribir nada.

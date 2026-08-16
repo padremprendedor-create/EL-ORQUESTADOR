@@ -8,8 +8,10 @@
 #
 #   Lo que si cabe aqui es lo que rompe EN SILENCIO, que es lo peligroso de un
 #   repo sin build: una skill que no se llama como su carpeta (Claude Code no la
-#   encuentra y no avisa) o una plantilla que se nombra y no esta (el agente se
-#   la inventa, que es peor que fallar).
+#   encuentra y no avisa), una plantilla que se nombra y no esta (el agente se la
+#   inventa, que es peor que fallar), o —desde que esto es un plugin— una skill
+#   que manda usar un agente que el plugin no trae, y un manifiesto que apunta a
+#   una carpeta inexistente: entonces no falla una skill, no se instala nada.
 #
 # Sin dependencias: Node a secas. Anadir un package.json para esto seria mas
 # superficie que valor.
@@ -24,7 +26,7 @@ on:
 
 jobs:
   skills:
-    name: nombres y rutas de las skills
+    name: manifiestos, agentes, nombres y rutas
     runs-on: ubuntu-latest
     timeout-minutes: 5
 
@@ -35,5 +37,5 @@ jobs:
         with:
           node-version: "22"
 
-      - name: Comprobar las skills
+      - name: Comprobar el plugin
         run: node scripts/check-skills.mjs

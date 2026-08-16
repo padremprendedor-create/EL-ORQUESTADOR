@@ -23,7 +23,10 @@
         "additionalProperties": false,
         "required": ["numero", "criterio", "resultado", "evidencia"],
         "properties": {
-          "numero": { "type": "integer" },
+          "numero": {
+            "type": "string",
+            "description": "Cadena, NO entero: los criterios se parten («8a», «8b») cuando una mitad se puede cumplir desde este repo y la otra no. Con un entero, el revisor se ve obligado a emitir dos entradas con el mismo número y aclararlo en prosa, que es justo lo que este campo existe para evitar."
+          },
           "criterio": {
             "type": "string",
             "description": "Copiado literal del SPEC, no reformulado."
