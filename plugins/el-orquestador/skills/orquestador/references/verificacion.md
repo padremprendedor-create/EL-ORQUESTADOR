@@ -91,8 +91,14 @@ que encontró el defecto grave de una ronda lo hizo **ejecutando la consulta exa
 código contra producción** y comparando con lo que la pantalla pintaba; leyendo el código
 no se veía.
 
-**3 · Un veredicto adversarial también se verifica.** Una lente exigió envolver cada
-migración en `begin`/`commit` explícito; el proyecto aplica con `apply_migration`, que
+**3 · Un veredicto adversarial también se verifica.** Medido en una ronda: de **15 hallazgos
+que las lentes marcaron como graves, 4 eran falsos** — el defecto que describían ya lo resolvía
+otra parte del contrato, o el código no se comportaba como suponían. Sin refutarlos antes de
+actuar, habrías reencargado cuatro arreglos innecesarios sobre trabajo que estaba bien. El
+patrón que lo cierra es barato: **un refutador por hallazgo grave, con el encargo invertido**
+(«demuestra que este defecto NO existe; por defecto, es falso»), y solo pasa lo que sobrevive.
+
+Una lente exigió envolver cada migración en `begin`/`commit` explícito; el proyecto aplica con `apply_migration`, que
 trae su propia transacción, y un `commit` de dentro la habría cerrado antes de tiempo.
 **Comprueba antes de obedecer.**
 
@@ -114,6 +120,23 @@ Medido: en una ronda las dos lentes de un bloque alto encontraron **defectos dis
 una, que el enlace se volvía relativo con una variable vacía; la otra, que una insignia
 afirmaba algo sobre la persona con un conteo sobre otra cosa. Ninguna habría encontrado la
 de la otra.
+
+## En dinero, la lente barre; no ejemplifica
+
+Cuando el bloque calcula importes, **exige un barrido numérico en el encargo de la lente**, no
+casos escogidos. La diferencia está medida y es brutal: cinco tests escritos a mano con importes
+enteros dieron verde sobre una aritmética rota, y la lente que barrió **más de un millón de
+combinaciones** con dos decimales encontró en el mismo commit dos fallos de coma flotante —un
+cargo saldado en dos parciales exactos que quedaba «vencido» para siempre, y una mora fantasma
+de `0,00` pintada en rojo a quien había pagado justo.
+
+Escríbelo en el encargo con estas palabras: *barre al menos N combinaciones, incluye importes
+que en binario no son exactos (x.10, x.30, tercios), y comprueba invariantes* —nada negativo,
+nada por debajo de la unidad mínima, nada con más decimales de los que existen, ningún `NaN`—
+*y dime cuántas combinaciones probaste*. Sin esa última frase, un agente «barre» doce casos.
+
+Vale igual para fechas, husos horarios, cantidades y cualquier redondeo: los dominios donde el
+caso bonito siempre pasa.
 
 ## Una lente puede cubrir dos bloques
 

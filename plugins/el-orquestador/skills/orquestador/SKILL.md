@@ -252,6 +252,14 @@ bien.
 
 Lanza todos los bloques de la misma tanda **en un solo mensaje** para que corran a la vez.
 
+> **Si orquestas con un script de workflow, comprueba qué versión se ejecutó.** Invocarlo por
+> nombre puede correr la copia **registrada al arrancar la sesión**, no la que acabas de editar
+> en disco — y lo descubres cuando ya gastaste la ronda. Pasó: los briefs corregidos por la
+> lente del paso 3b no llegaron a ningún agente. Relanza siempre por **ruta del script**, y
+> antes de creerte nada, `grep` una cadena que solo exista en tu versión nueva contra el script
+> que el runtime persistió. Lo que salvó aquella ronda fue que **el SPEC sí estaba commiteado**:
+> los agentes lo leen primero, y tres detectaron el conflicto y obedecieron al SPEC.
+
 **Qué es una tanda, y por qué no es «todos los bloques».** La propiedad exclusiva evita dos
 escritores; **no** evita que B lea un archivo mientras A lo escribe. Dos reglas cierran esa
 carrera:
@@ -342,6 +350,16 @@ archivos y sabe por qué los escribió así.
    rehace lo que una lente ya dio por bueno y hay que verificarlo entero otra vez.
 3. **Repite las puertas y el formato de reporte.** Vuelve desde su transcripción y da por
    hecho que lo de antes sigue valiendo; si algo cambió, dilo.
+4. **Lo que vetas es una hipótesis, no un hecho.** Decir «no toques X, ya está verificado» es
+   lo que más trabajo salva (punto 2) y también lo que esconde la raíz: en una ronda medida,
+   **dos reencargos seguidos fallaron porque el defecto vivía justo en la función blindada** —
+   estaba verificada con importes enteros, y el fallo era de coma flotante. Al vetar, escribe
+   **con qué se verificó** lo que blindas; si el defecto reaparece con otra cara, ese veto es
+   el primer sospechoso.
+5. **Evalúa el resultado del reencargo, no solo lo lances.** Un bloque cuyo fix vuelve
+   `bloqueado` —o cuya lente confirmó un grave que nadie cerró— **no está cerrado**, aunque su
+   commit esté en el árbol y su JSON diga `completado`. Si automatizas la ronda, que esa
+   condición esté en el código que decide qué bloque cuenta como hecho: se olvida sola.
 
 > **Reencargar invalida las lentes que sigan vivas.** El carril solo es seguro porque cada
 > lente lee archivos de **un dueño único y quieto**. Si devuelves un bloque mientras una

@@ -93,7 +93,18 @@ Estas se comprobaron corriendo el CLI, no leyendo docs:
    veredicto `CUMPLE` con `criterios: []` es válido. La cobertura se comprueba fuera.
    Esquema listo para usar: `~/.claude/skills/orquestador/assets/veredicto-codex.schema.json`.
 
-7. **Diagnostica con `2>&1`, no con `2>/dev/null`.** El progreso va a stderr, pero los
+7. **Verificar un SPEC entero tarda más de 10 minutos: lánzalo en segundo plano.** Medido: 19
+   criterios sobre un repo pequeño con `-C` y lectura de código pasaron de los 600 s del timeout
+   por defecto. No lo trocees en llamadas cortas —pierde el contexto entre criterios—: mándalo
+   al fondo con `-o <archivo>` y sigue con tu revisión mientras tanto.
+
+8. **El perfil `revisor` (sandbox `read-only`) no puede correr las puertas del proyecto.**
+   `vitest` falla con `EPERM` al crear su temporal y `next build` al abrir `.next/trace`. No es
+   que fallen los tests: es que no puede escribir. Consecuencia práctica: Codex marcará como
+   `NO VERIFICABLE` cualquier criterio de «puertas en verde», y ese lo cierras **tú**, que sí
+   las corriste. Dáselo hecho en el prompt para que no lo intente, o asume el `NO VERIFICABLE`.
+
+9. **Diagnostica con `2>&1`, no con `2>/dev/null`.** El progreso va a stderr, pero los
    errores de arranque también. Si una invocación devuelve vacío, repítela con `2>&1`
    antes de suponer nada.
 

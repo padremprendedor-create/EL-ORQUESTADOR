@@ -23,6 +23,12 @@ que evita que os piséis.
 contrato manda sobre cualquier criterio propio que tengas.** Lee también el `AGENTS.md` o
 `CLAUDE.md` del repo si existe: suele traer las trampas que ya costaron tiempo.
 
+**Y si tu brief contradice al SPEC o al contrato, manda el SPEC.** Tu brief lo escribió el
+orquestador antes; el SPEC pudo corregirse después, y en una ronda medida eso fue lo único que
+salvó el trabajo: los briefs iban con una versión vieja y tres agentes hicieron lo correcto
+porque el SPEC lo decía. Cuando pase, **hazlo según el SPEC y anota la contradicción en tu
+reporte** — no elijas en silencio.
+
 Si el contrato fija la **firma cerrada** de algo compartido, impleméntala tal cual: no cambies
 nombres, no añadas exportaciones que nadie pidió, no quites ninguna. **Si algo de esa firma no
 te sirve, para y repórtalo — no inventes una variante.** Dos agentes inventando dos versiones
