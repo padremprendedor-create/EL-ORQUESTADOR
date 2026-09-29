@@ -44,6 +44,7 @@ agentes **nunca** pushean · un solo commit documenta la ronda entera · se veri
 | `assets/flujo-de-ronda.svg` | la forma entera de una ronda, dibujada |
 | `assets/contrato-de-ronda.md` | plantilla del contrato (paso 3) |
 | `assets/linea-base.mjs` | graba las puertas antes de lanzar (paso 3b) |
+| `workflows/lentes-bloque.js` (en la raíz del plugin) | las lentes de un bloque a la vez y un refutador por grave (paso 6) |
 | `references/verificacion.md` | el porqué de la verificación por riesgo, y el autochequeo |
 | `references/costes.md` | presupuesto medido, los cinco levers, política de modelos |
 | `references/informe.md` | el informe HTML: quién lo escribe y qué no puede inventarse |
@@ -217,6 +218,15 @@ por dónde atacar aquí.
 > presupuesto descubriendo lo que tú ya sabías. Y su gemela, el **techo de verificación**:
 > dile qué **no** va a poder comprobar y por qué, para que no lo intente.
 
+**En un bloque de riesgo alto, los tests de la clase de acceso son parte de terminar.** Quién
+ve qué, quién entra, qué pasa sin sesión o con la de otro: los escribe **el constructor, en su
+bloque**, y corren en las puertas de cada commit. La lente ataca por encima, no en su lugar,
+porque la lente puede no llegar: en una ronda, un filtro de seguridad del entorno cortó a las
+dos lentes de seguridad de un bloque antes de que reprodujeran nada, y la clase quedó cubierta
+solo porque sus dueños ya habían escrito esos tests. Ponlo en el brief como condición de
+terminado **con la lista de caminos** (cada acción con sesión ajena, sin sesión, con la cuenta
+bloqueada...), no como «añade tests».
+
 Si el trabajo no encaja en ninguno de los dos, usa `general-purpose` con el brief entero.
 
 > **El nombre depende de cómo estén instalados, y equivocarse da `Agent type not found`.**
@@ -275,6 +285,12 @@ carrera:
 **Anota de cada agente, según llegan sus cierres, tokens · usos de herramienta · duración.**
 Vienen en la notificación y al terminar el turno ya no están. Son la mitad del informe.
 
+**Y lleva una tabla bloque ↔ id de agente** en el archivo donde apuntas el estado de la
+ronda, y compruébala **antes de cada mensaje a mitad de tanda**. Los ids son opacos y se
+confunden: en una ronda, un aviso del contrato que cambiaba el código de un bloque se le
+mandó al agente de otro. Lo detectó el que no era, y el bueno lo recibió 20 minutos tarde,
+con su trabajo avanzando sobre la versión vieja.
+
 Los tres cortes contra bucles:
 
 1. **Agente que relee los mismos archivos sin escribir ninguno** → está en bucle. Córtalo,
@@ -329,8 +345,30 @@ El carril **se apoya en el contrato; no lo sustituye**: si no pudiste cerrar la 
 exclusiva, no hay carril. Y la barrera nunca desaparece — el contrato entre bloques, la
 deduplicación de hallazgos y tu revisión solo se pueden hacer con todo delante.
 
+> **El carril no tiene servidor mientras un hermano de tanda siga escribiendo.** Un build
+> compila todos los archivos del árbol, también los que otro bloque tiene a medio escribir:
+> falla por lo ajeno o, peor, la lente ataca una app que mezcla dos estados. Las lentes en
+> carril del primer bloque que cierra trabajan **sin servidor** —el código, los tests
+> unitarios filtrados, la base de datos directa—, y lo que necesite la app levantada espera
+> a que la tanda entera esté quieta. Escríbelo en su brief como techo de verificación, o
+> gastará el presupuesto peleándose con el build.
+
 Todos los bloques, sea cual sea su riesgo, pasan por Codex en el paso 7. Lo que cambia es
 cuántas lentes, cuánto cuestan y cuándo.
+
+### Cómo lanzar las lentes de un bloque
+
+Todas a la vez, cada una con su foco, y **un refutador por cada grave** antes de que llegue a
+ti (regla 3 de `references/verificacion.md`). Si quien encargó la ronda **autorizó
+workflows**, eso ya está escrito: `workflows/lentes-bloque.js`, invocado como
+`el-orquestador:lentes-bloque` (o por `scriptPath` si lo acabas de editar: ver el paso 5).
+Le pasas el bloque, el contexto, los archivos, la lista de lectura, la clase que atacar y las
+lentes con su foco, y te devuelve aparte **los graves confirmados, los refutados y las lentes
+que volvieron sin informe**. Esa última lista es la que no se puede perder: una lente cortada
+que desaparece en silencio es una clase que das por verificada sin que nadie la mirara.
+
+Sin workflows, lo mismo a mano: las lentes con el agente `lente-adversarial` en un solo
+mensaje, y cada refutador en cuanto cierre la lente que encontró el grave.
 
 ---
 
@@ -420,6 +458,13 @@ de defenderte: en las rondas medidas la tuvo siempre.
   cambios que no contenía. **`git status --short` DESPUÉS de commitear tiene que salir
   vacío** — si algo sigue modificado, se te quedó fuera. Y si corres un validador, córrelo
   también después: el de antes mira tu árbol de trabajo, no lo que acabas de commitear.
+- **Si la ronda commitea por partes** (un commit por bloque, porque te lo pidieron o porque
+  una tanda depende de la anterior), **las puertas corren sobre el árbol exacto de cada
+  commit**, no sobre uno que todavía tiene encima lo de los otros bloques sin commitear.
+  Aparta lo pendiente con `git stash push -u -- <rutas de los bloques que faltan>`, corre las
+  puertas, guarda su salida junto a `git rev-parse HEAD` y recupera con `git stash pop`. El
+  `-u` es lo que importa: sin él, los archivos nuevos sin rastrear se quedan en el árbol y las
+  puertas los compilan. Medido: seis corridas en una ronda de tres commits, unos 20 minutos.
 - Un bloque con veredicto `NO CUMPLE` **no entra**, aunque su JSON diga `completado`.
 - **Si el push es el despliegue, el push requiere permiso humano.** Commitea en rama y
   espera; integrar no es desplegar.

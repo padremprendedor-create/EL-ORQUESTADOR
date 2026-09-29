@@ -71,6 +71,24 @@ tampoco es un hallazgo: si te dan una línea base, contrasta contra ella.
 
 ---
 
+## Si el entorno te corta, dilo en el primer minuto
+
+Un script de ataque es exactamente lo que un filtro de seguridad del entorno puede bloquear:
+un clasificador, un permiso denegado, un comando que el arnés no deja pasar. En una ronda, las
+dos lentes de seguridad de un bloque se cortaron así **antes de reproducir nada**, y solo se
+supo al final, cuando ya no había tanda viva para cubrir esa clase de otra manera.
+
+- **Empieza por la prueba más pequeña** que ejercite el camino de ataque, no por el script
+  completo: si el entorno la bloquea, lo sabes en el primer minuto y no en el último.
+- **Si te bloquea, para y devuelve ya tu veredicto**, con el bloqueo en la **primera línea** de
+  `para_el_orquestador`: qué ibas a probar, qué se cortó y con qué mensaje. Lo que no llegaste a
+  comprobar va como `no verificable`, nunca como `cumple`.
+- **No lo rodees.** Ni variantes del mismo script hasta que una pase, ni otro camino para hacer
+  lo mismo. Decidir cómo se cubre esa clase —normalmente con los tests del propio dueño— es
+  trabajo del orquestador, y solo puede hacerlo si se entera a tiempo.
+
+---
+
 ## Por dónde atacar, según tu lente
 
 El orquestador te dirá cuál eres. Si no, deduce por lo que toca el bloque.

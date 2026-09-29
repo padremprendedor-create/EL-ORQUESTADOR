@@ -98,6 +98,19 @@ comentario sobrevive y evita que alguien lo «simplifique» de vuelta al fallo.
 Y lo más importante para no romper nada: **si tu cambio es aditivo, demuéstralo**. Un camino
 que hoy no tiene el dato nuevo tiene que comportarse exactamente igual que antes.
 
+Dos cosas que no marca ningún linter y que ya costaron una ronda:
+
+- **Los tests que escribes limpian por claves exactas, nunca por patrón.** La base de datos de
+  pruebas es de todos: la usan a la vez los otros bloques y las lentes. Un
+  `delete ... where codigo like 'ZZ%'` se lleva también las filas que otro proceso acaba de
+  crear con ese prefijo, y su test falla por algo que no hizo. Pasó. Guarda las claves de lo que
+  creas y borra exactamente esas.
+- **Si escribiste escapes `\uXXXX`, barre los caracteres invisibles de tus archivos antes de
+  reportar.** A veces lo que queda en disco no es el escape sino el carácter literal: en una
+  ronda quedó un BOM invisible en mitad de un script y nadie lo vio. Basta
+  `rg -n '[\x{FEFF}\x{200B}-\x{200D}\x{00A0}]' <tus archivos>` (o `grep -nP` con el mismo
+  patrón); lo que salga, o es intencionado y lo dices, o lo quitas.
+
 ---
 
 ## Tu reporte

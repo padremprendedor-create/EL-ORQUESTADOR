@@ -28,6 +28,12 @@ Y **dos agentes**, que son el trabajo que se repite en cada ronda:
 
 Que sean agentes y no párrafos de un brief tiene una consecuencia que importa: **sus reglas se aplican tanto si quien orquesta se acordó de pegarlas como si no.**
 
+Y **un workflow**, para quien use la herramienta Workflow de Claude Code:
+
+| Workflow | Qué hace |
+|---|---|
+| **`lentes-bloque`** ([código](plugins/el-orquestador/workflows/lentes-bloque.js)) | Lanza las lentes adversariales de un bloque a la vez, cada una con su foco, y **un refutador por cada hallazgo grave**. Devuelve aparte los graves confirmados, los refutados y las lentes que volvieron sin informe |
+
 ---
 
 ## Cómo se ve una ronda
@@ -94,6 +100,8 @@ git clone https://github.com/padremprendedor-create/EL-ORQUESTADOR.git
 cp -r EL-ORQUESTADOR/plugins/el-orquestador/skills/* ~/.claude/skills/
 cp -r EL-ORQUESTADOR/plugins/el-orquestador/agents/* ~/.claude/agents/
 ```
+
+El workflow no hace falta copiarlo: a mano se invoca por ruta (`scriptPath`) a `EL-ORQUESTADOR/plugins/el-orquestador/workflows/lentes-bloque.js`, con `agentType: "lente-adversarial"` en sus argumentos porque los agentes copiados van sin prefijo.
 
 Si una skill no aparece, comprueba que su carpeta se llama igual que el campo `name` de su `SKILL.md`: cuando no coinciden, **Claude Code no la encuentra y no avisa**. `node scripts/check-skills.mjs` lo comprueba por ti, junto con los manifiestos y los agentes.
 

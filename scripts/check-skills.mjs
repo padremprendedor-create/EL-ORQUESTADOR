@@ -49,7 +49,7 @@ const CARPETA_CLON = (() => {
 // Extensiones de archivos que este repo referencia de verdad. Filtrar por
 // extension es lo que separa una ruta real de `developers.openai.com/codex/cli`,
 // que casa con cualquier patron de "algo/algo" y no es un archivo.
-const EXTENSIONES = /\.(md|html|json|svg|toml|mjs)$/i;
+const EXTENSIONES = /\.(md|html|json|svg|toml|mjs|js)$/i;
 const CANDIDATA = /(?:^|[\s`("'[])((?:\.\/)?[\w.-]+(?:\/[\w.-]+)+)/g;
 
 /** Frontmatter a mano: es lo unico que hay que parsear en todo el repo, y una
