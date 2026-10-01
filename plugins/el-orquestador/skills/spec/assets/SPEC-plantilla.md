@@ -32,7 +32,10 @@ visto bueno antes de seguir con el siguiente.
 ## Criterios de éxito
 
 Se responden sí o no. Alguien que no estuvo en la conversación tiene que poder
-comprobarlos.
+comprobarlos. Nada de negativos históricos («no se hizo push»): se escriben como un
+estado que se comprueba ahora («sin remoto configurado: `git remote -v`,
+`git for-each-ref refs/remotes` y `git config --local --get-regexp '^remote\.'` salen
+vacíos»).
 
 | # | Criterio | Se comprueba con | Resultado |
 |---|---|---|---|

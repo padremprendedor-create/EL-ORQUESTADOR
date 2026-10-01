@@ -101,7 +101,7 @@ cp -r EL-ORQUESTADOR/plugins/el-orquestador/skills/* ~/.claude/skills/
 cp -r EL-ORQUESTADOR/plugins/el-orquestador/agents/* ~/.claude/agents/
 ```
 
-El workflow no hace falta copiarlo: a mano se invoca por ruta (`scriptPath`) a `EL-ORQUESTADOR/plugins/el-orquestador/workflows/lentes-bloque.js`, con `agentType: "lente-adversarial"` en sus argumentos porque los agentes copiados van sin prefijo.
+El workflow no hace falta instalarlo: a mano se invoca por ruta (`scriptPath`) a `EL-ORQUESTADOR/plugins/el-orquestador/workflows/lentes-bloque.js`, pero solo si el clon está en tu directorio de trabajo o en uno que hayas añadido, porque la herramienta no acepta un archivo que no puedas leer ya. Si no lo está, copia ese archivo a tu directorio temporal de la sesión e invócalo desde ahí. En los dos casos, pásale `agentType: "lente-adversarial"` en sus argumentos, porque los agentes copiados van sin prefijo.
 
 Si una skill no aparece, comprueba que su carpeta se llama igual que el campo `name` de su `SKILL.md`: cuando no coinciden, **Claude Code no la encuentra y no avisa**. `node scripts/check-skills.mjs` lo comprueba por ti, junto con los manifiestos y los agentes.
 

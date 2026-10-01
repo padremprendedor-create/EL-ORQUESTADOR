@@ -154,6 +154,16 @@ contesta tres preguntas:
 Un agente contra 2 M de tokens de ronda. **Es la verificación más rentable del método**, y
 la única que corre antes de que el gasto empiece.
 
+**Y cuando apliques lo que encontró, relee el contrato entero antes de lanzar.** Corregir
+también crea defectos: en una ronda, tras aplicar dos docenas de hallazgos quedaron dos
+contradicciones —una misma clave de bloqueo para tres funciones y, unas líneas más abajo,
+una de ellas sin bloqueo; una regla que dependía de unas etiquetas frente a la firma
+cerrada, en otra sección, que no las pasaba—, y los constructores las resolvieron cada uno
+a su manera a mitad de tanda. Una relectura del contrato entero buscando solo eso, o una
+pasada de un agente barato con esa única pregunta, cuesta minutos. La contradicción que
+llega a mitad de tanda la resuelve cada agente por su cuenta, y dos pueden resolverla de
+dos maneras.
+
 ### La línea base
 
 **Graba la salida de las puertas del proyecto ANTES de lanzar** y guárdala en un archivo.
@@ -353,6 +363,18 @@ deduplicación de hallazgos y tu revisión solo se pueden hacer con todo delante
 > a que la tanda entera esté quieta. Escríbelo en su brief como techo de verificación, o
 > gastará el presupuesto peleándose con el build.
 
+> **Y cuando la tanda esté quieta, levanta tú la app con el build de la barrera, pásasela a
+> una lente para que haga las capturas —en el workflow, con el argumento `servidor`— y que
+> las mire una a una contra el diseño alguien que no las hizo.** Los tests comprueban lo que
+> alguien pensó en escribir; una captura enseña lo que nadie pensó, pero solo si quien la
+> mira la compara con el diseño. En una ronda, la lente de interfaz cazó midiendo un
+> elemento decorativo más ancho que la pantalla; en cambio, unos bordes casi invisibles en
+> uno de los dos temas y un aviso que revelaba aciertos a mitad de una prueba aparecieron
+> cuando el orquestador puso las capturas al lado del diseño. La lente había descrito ese
+> aviso sin verlo como defecto. Pide capturas de cada estado —vacío, carga, error, lleno—
+> en cada tema y a ancho de móvil, y compáralas tú, lado a lado con el diseño: una captura
+> que solo mira quien la hizo no basta.
+
 Todos los bloques, sea cual sea su riesgo, pasan por Codex en el paso 7. Lo que cambia es
 cuántas lentes, cuánto cuestan y cuándo.
 
@@ -360,8 +382,20 @@ cuántas lentes, cuánto cuestan y cuándo.
 
 Todas a la vez, cada una con su foco, y **un refutador por cada grave** antes de que llegue a
 ti (regla 3 de `references/verificacion.md`). Si quien encargó la ronda **autorizó
-workflows**, eso ya está escrito: `workflows/lentes-bloque.js`, invocado como
-`el-orquestador:lentes-bloque` (o por `scriptPath` si lo acabas de editar: ver el paso 5).
+workflows**, eso ya está escrito: `workflows/lentes-bloque.js`, que debería resolverse como
+`el-orquestador:lentes-bloque` (nombre deducido de la convención de los plugins, sin
+comprobar todavía en una ronda real).
+
+> **Por `scriptPath` no se puede apuntar a la caché del plugin.** El Workflow solo acepta una
+> ruta que él mismo devolvió o un archivo que ya puedes leer —el directorio de trabajo o uno
+> que hayas añadido—, y la caché de plugins queda fuera: contesta *«scriptPath must be a
+> script path this tool returned, or a file you can already read»*. Pasó dos veces en la
+> misma ronda. Lo que funcionó, las cuatro veces que se usó: **copiar
+> `workflows/lentes-bloque.js` a tu directorio temporal de la sesión**, que sí cuenta como
+> legible, e invocarlo por esa ruta. Antes de fiarte de la copia, compruébala: el mismo hash
+> que el original si no la tocaste, o, si la editaste (paso 5), un diff contra el original
+> que solo muestre tu cambio.
+
 Le pasas el bloque, el contexto, los archivos, la lista de lectura, la clase que atacar y las
 lentes con su foco, y te devuelve aparte **los graves confirmados, los refutados y las lentes
 que volvieron sin informe**. Esa última lista es la que no se puede perder: una lente cortada
@@ -398,6 +432,11 @@ archivos y sabe por qué los escribió así.
    `bloqueado` —o cuya lente confirmó un grave que nadie cerró— **no está cerrado**, aunque su
    commit esté en el árbol y su JSON diga `completado`. Si automatizas la ronda, que esa
    condición esté en el código que decide qué bloque cuenta como hecho: se olvida sola.
+6. **Cada test nuevo del reencargo tiene que haberse visto fallar.** Pide al dueño que rompa
+   a propósito la regla que ese test protege —un mutante—, lo vea caer y deshaga el cambio,
+   y que lo diga en su reporte. Un test que nunca falló delante de nadie puede no estar
+   probando nada: es la misma clase de defecto que la lente acaba de encontrar (ver
+   `lente-adversarial`, corrección y cobertura).
 
 > **Reencargar invalida las lentes que sigan vivas.** El carril solo es seguro porque cada
 > lente lee archivos de **un dueño único y quieto**. Si devuelves un bloque mientras una
@@ -465,6 +504,30 @@ de defenderte: en las rondas medidas la tuvo siempre.
   puertas, guarda su salida junto a `git rev-parse HEAD` y recupera con `git stash pop`. El
   `-u` es lo que importa: sin él, los archivos nuevos sin rastrear se quedan en el árbol y las
   puertas los compilan. Medido: seis corridas en una ronda de tres commits, unos 20 minutos.
+- **Pero si el dueño de lo pendiente sigue escribiendo, el `stash` no sirve**: le apartarías
+  los archivos a un agente vivo, y al volver no encontraría lo que acaba de escribir. Corre
+  entonces las puertas en un **worktree limpio**: `git worktree add --detach <carpeta> HEAD`,
+  copia allí las rutas exactas del bloque que vas a commitear —con la lista contrastada
+  contra `git status`: todo el árbol clasificado, nada suelto—, instala dependencias una vez
+  y corre las puertas; commitea en el árbol principal; y en el worktree `git reset --hard
+  <sha>` + `git clean -fd` y las puertas otra vez, con `git rev-parse HEAD` en la misma
+  salida. Medido: ocho corridas en cuatro commits, unos tres minutos cada una. Aquí son
+  **dos comprobaciones distintas**: en el worktree, tras el reset, `git rev-parse HEAD` y un
+  `git status --short` vacío prueban que las puertas corrieron sobre el commit exacto; en el
+  árbol principal, después de commitear, `git status --short` tiene que mostrar **solo** las
+  rutas de los bloques que aún no has commiteado, ya clasificadas, y cualquier otra se te
+  quedó fuera del commit.
+  **El worktree aísla archivos, no lo que vive fuera del árbol**: si las
+  puertas reinician una base de datos local o usan un puerto fijo, córrelas solo cuando
+  ningún agente ni lente esté usando esa base o ese puerto, aunque eso retrase el commit
+  hasta la barrera. Y al terminar, `git worktree remove` y **comprueba que la carpeta ya no
+  está**: con dependencias enlazadas (las de pnpm, por ejemplo) puede quedar un esqueleto de
+  enlaces. Si alguno apunta fuera, una orden que siga los enlaces arrastra lo que hay al otro
+  lado: bórralo con una que quite el enlace y no su destino —en Windows, desde PowerShell o
+  cmd, `cmd /c rmdir /s /q <carpeta>` con la ruta en barras invertidas (comprobado: el
+  destino queda intacto; en PowerShell, `rmdir` a secas es `Remove-Item`, que no es lo que se
+  probó); desde Git Bash, `cmd //c rmdir //s //q '<carpeta>'`, porque MSYS convierte `/c` en
+  `C:/`; en Unix, `rm -r` no sigue los enlaces simbólicos—.
 - Un bloque con veredicto `NO CUMPLE` **no entra**, aunque su JSON diga `completado`.
 - **Si el push es el despliegue, el push requiere permiso humano.** Commitea en rama y
   espera; integrar no es desplegar.

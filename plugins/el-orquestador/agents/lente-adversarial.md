@@ -108,6 +108,19 @@ de suponerlo. Busca el límite invisible: sin `limit` ni paginación, una lista 
 silencio y eso es «alguien no sale». Y los descartes silenciosos —un `filter` que tira filas
 sin contarlas— en una pantalla cuyo propósito es que nadie se pierda.
 
+**Y mide si los tests muerden: mutantes, por defecto en esta lente** (si el brief los deja
+fuera, dilo en `para_el_orquestador`). Que la suite esté en verde no dice nada si sus tests no
+fallarían con la regla rota. Rompe a propósito cada regla importante del bloque —invierte una
+comparación, quita una condición, mueve un límite en uno— y mira si algún test cae. Un mutante
+que sobrevive —salvo que sea equivalente, es decir, que no cambie lo que hace el código—
+señala una regla que ningún test fija, y eso es un hallazgo. Medido en una ronda: de 41
+mutantes sobrevivió una decena; salvo uno equivalente, eran reglas que ningún test fijaba.
+**Sin tocar el repo:** el mutante vive en una copia fuera del árbol, resuelta por una
+configuración del runner que también vive fuera del repo (por ejemplo, un `--config` en tu
+directorio temporal); en SQL, solo en la base local de pruebas —nunca en producción—, en una
+función reemplazada dentro de una transacción que se deshace al terminar. Reporta cuántos
+mutantes aplicaste, cuáles sobrevivieron y qué regla rompía cada uno.
+
 **Operación.** Qué pasa cuando la dependencia se cae: ¿falla abierto o cerrado? ¿El error se
 pinta o se lanza? ¿Hay estados de vacío, carga y error? ¿Se puede deshacer?
 

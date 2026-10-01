@@ -109,6 +109,15 @@ criterio, es una intención.
 | "El agente corrió correctamente" | "Los 6 bloques dejaron archivo con contenido real y el `tsc` pasa" |
 | "Mejoró la conversión" | "El formulario envía a Supabase y llega el WhatsApp de prueba" |
 | "El código está limpio" | "No hay `any` nuevos y el lint pasa sin warnings" |
+| "No se hizo push" | "Sin remoto configurado: `git remote -v`, `git for-each-ref refs/remotes` y `git config --local --get-regexp '^remote\.'` salen vacíos" |
+
+**Un negativo histórico no es un criterio.** «Nunca se hizo X» no lo puede demostrar
+nadie que llegue después: el revisor externo lo devolverá como `NO VERIFICABLE`
+ronda tras ronda, con razón. Escríbelo como un estado que se comprueba ahora —no hay
+remoto configurado, la carpeta prohibida no aparece en el diff desde el commit base, la
+tabla de producción no tiene filas de esta ronda—. Pasó dos rondas seguidas con «sin
+push», porque la corrección se hizo en la bitácora de la primera y no en la plantilla:
+**lo que se reformula en una ronda pasa a donde se escribe la siguiente.**
 
 Para cada criterio anota **con qué se comprueba**: un comando, una consulta, una
 pantalla que se mira, una persona que lo prueba. Un criterio sin forma de

@@ -17,9 +17,13 @@
  *     en el resumen con su nombre. Tirarla en silencio es dar por verificada su clase.
  *
  * Uso: solo si quien encargó la ronda autorizó workflows. Por nombre
- * (`el-orquestador:lentes-bloque`) o, si el runtime no lo conoce o acabas de editarlo, por
- * `scriptPath` a este archivo: invocado por nombre puede correr la copia registrada al
- * arrancar la sesión, no la del disco.
+ * (`el-orquestador:lentes-bloque`: deducido de la convención de los plugins, sin comprobar
+ * todavía en una ronda real) o por `scriptPath`. Ojo: `scriptPath` no acepta la caché de
+ * plugins, que es donde vive este archivo cuando se instala como plugin (la herramienta
+ * contesta que solo acepta un archivo que ya puedas leer). Copia este archivo a tu directorio
+ * temporal de la sesión, comprueba la copia (el mismo hash, o un diff contra el original que
+ * solo muestre tu cambio) e invócala por esa ruta. Invocado por nombre, además, puede correr
+ * la copia registrada al arrancar la sesión, no la del disco.
  *
  * El orquestador lee el resumen, decide qué es un defecto y reencarga al dueño (paso 6b).
  * Este script no decide nada de eso.
