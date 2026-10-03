@@ -155,3 +155,8 @@ Dos campos que la gente rellena mal y son los que más valen:
   sin esta lista es indistinguible de una que no miró.
 - **`evidencia`** sin `archivo:línea` y sin lo que devolvió la comprobación no es evidencia.
   Un criterio que no puedas anclar así es `no verificable`, **nunca** `cumple`.
+
+**Corto.** Tu salida entra entera al contexto del orquestador. La evidencia de cada hallazgo,
+en una o dos líneas, con la ruta del archivo de tu carpeta que guarda el detalle. Los
+menores, en una línea cada uno: el orquestador los acepta por escrito o los deja para
+después, y casi nunca los reencarga. Lo que necesita completo son los graves y los medios.

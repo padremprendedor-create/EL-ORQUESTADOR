@@ -110,6 +110,14 @@ Dos cosas que no marca ningún linter y que ya costaron una ronda:
   ronda quedó un BOM invisible en mitad de un script y nadie lo vio. Basta
   `rg -n '[\x{FEFF}\x{200B}-\x{200D}\x{00A0}]' <tus archivos>` (o `grep -nP` con el mismo
   patrón); lo que salga, o es intencionado y lo dices, o lo quitas.
+- **Tus mutantes no tocan el árbol que sirve un servidor compartido.** Los de lógica pura van
+  en una copia fuera del árbol. Si un test de pantalla solo cae con la app mutada (acceso en
+  E2E), no la mutes tú: dilo en `no_hecho` y lo ve caer el orquestador en la barrera, cuando
+  no corre nadie más. En una ronda, constructores que mutaron el árbol vivo les sirvieron a
+  los demás agentes, durante minutos, páginas sin su control de acceso.
+- **Tus pruebas no dependen de los datos que crea otro bloque.** Usa la semilla. Si para
+  probarlo necesitas la pantalla de otro bloque, escribe la prueba igual, con el comentario de
+  la dependencia, y dilo en `no_hecho`.
 
 ---
 
@@ -137,3 +145,7 @@ SPEC, así que ayúdale:
   problemas evita: un supuesto escrito se corrige en diez segundos, uno tácito se descubre
   cuando ya hay tres bloques construidos encima.
 - En **`no_hecho`** lo que dejaste fuera y por qué. Callarlo no lo hace desaparecer.
+- **Corto.** Tu reporte entra entero al contexto del orquestador, que es el recurso más escaso
+  de la ronda. Los mutantes van como conteo (aplicados, atrapados, sobrevivientes) y solo
+  se detallan los que sobrevivieron. Las puertas, con su línea de resumen y no con la salida
+  entera. El detalle largo va a un archivo fuera del repo, y en el reporte pones su ruta.

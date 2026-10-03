@@ -109,6 +109,18 @@ plantilla en `assets/contrato-de-ronda.md`. Tres partes:
    error), y **qué comandos no puede correr un agente en tanda paralela** — varios agentes
    en un worktree comparten el directorio de build, las cachés y los puertos. Apóyate en
    `diseno` o `ui-ux-pro-max` si hay interfaz.
+   - **Si hay interfaz, las reglas de las guías del diseño que se aplican por tipo de
+     pantalla:** qué token lleva el título de una lista, de un formulario en página propia y
+     de uno en panel; qué variante de botón lleva cada acción (la primaria, cancelar, anular);
+     cómo se alinean los montos; qué pasa con un texto largo sin espacios. En una ronda, la
+     lente visual encontró al final tres tamaños de título en formularios gemelos y anular
+     pintado como acción cotidiana. Era una línea en el contrato y costó una tanda de arreglos.
+   - **Si un criterio dice «cada pantalla», el contrato lista las pantallas.** Sin la lista,
+     el bloque de evidencia captura las principales, la lente cuenta las que faltan y hay que
+     repetir las capturas.
+   - **Ninguna prueba depende de los datos que crea otro bloque:** usa la semilla. En la
+     batería de la barrera, que corre en serie y con la semilla recién cargada, la prueba que
+     dependía de otra corrió antes que ella y falló.
 
 > **Trampa que costó trabajo real:** el archivo de tipos generado es de todos y de nadie.
 > En una ronda se regeneró **antes** de aplicar la migración, así que las funciones nuevas
@@ -235,7 +247,10 @@ porque la lente puede no llegar: en una ronda, un filtro de seguridad del entorn
 dos lentes de seguridad de un bloque antes de que reprodujeran nada, y la clase quedó cubierta
 solo porque sus dueños ya habían escrito esos tests. Ponlo en el brief como condición de
 terminado **con la lista de caminos** (cada acción con sesión ajena, sin sesión, con la cuenta
-bloqueada...), no como «añade tests».
+bloqueada...), no como «añade tests». **Verlos caer con un mutante lo haces tú en la barrera,
+no el constructor:** para que caiga un test de pantalla hay que mutar la app, y si el
+servidor es compartido, los demás agentes ven, mientras dure, una app sin su control de
+acceso. Pasó en una ronda.
 
 Si el trabajo no encaja en ninguno de los dos, usa `general-purpose` con el brief entero.
 
@@ -323,7 +338,7 @@ razonamiento completo, el autochequeo y las tres reglas de las lentes:
 
 | Riesgo | Lo peor que puede pasar | Qué se le hace |
 |---|---|---|
-| **Alto** | Se expone o se pierde un dato · alguien ve lo que no es suyo · alguien deja de poder entrar · **un importe calculado, cobrado o registrado** sale mal · un borrado se lleva lo que no debía | **2 a 4 lentes independientes**, cada una con una lente **distinta** (seguridad / corrección / operación / contrato), en **opus**, con **acceso de lectura al sistema real** |
+| **Alto** | Se expone o se pierde un dato · alguien ve lo que no es suyo · alguien deja de poder entrar · **un importe calculado, cobrado o registrado** sale mal · un borrado se lleva lo que no debía | **2 lentes independientes**: una de seguridad y otra para lo que más se rompe ahí (corrección con barrido si toca dinero; contrato y operación si es una puerta pública). Una tercera solo si esas dos se contradicen. En **opus**, con **acceso de lectura al sistema real** |
 | **Medio** | Sale un número equivocado **sobre el que alguien va a actuar**, o una integración falla en silencio | **Una** lente, en **sonnet**, con lista de lectura acotada |
 | **Bajo** | Se ve mal, se lee mal, o hay que volver a tocarlo. Se nota mirando — y **nadie decide nada todavía con esa pantalla** | Revisión tuya contra los criterios. **Sin lentes.** |
 
@@ -343,6 +358,13 @@ entero. Clasificar es decisión tuya y **se anota en el contrato con su porqué*
 
 **Si ningún bloque te cayó en «bajo», vuelve a mirarlos**: es la señal de que estás
 inflando, y es donde se pierde el ahorro.
+
+> **Medido: con 2 a 3 lentes por bloque alto, las lentes costaron más que los constructores**
+> (6,4 M contra 5,7 M de tokens, `references/costes.md`, ronda 4), y lo que trajeron fue sobre
+> todo menor. Dos lentes con foco distinto bastan. **Una lente de seguridad que el entorno
+> corta no se reintenta ni se reemplaza por otra:** pasó tres veces en esa ronda y las tres
+> volvería a pasar. Esa clase la cubren los tests de acceso del constructor, que son condición
+> de terminado (paso 4), y tus sondas deterministas en la barrera.
 
 ### Carril o barrera
 
@@ -412,6 +434,18 @@ Una lente confirmó un defecto real. **Pasa en casi todas las rondas y es donde 
 parte del reloj**, así que no lo improvises. No es lo mismo que los cortes del paso 5:
 aquellos son agentes atascados, este es trabajo terminado que está mal.
 
+**Antes, tría.** No todo lo que trae una lente se reencarga. Es el lever de tokens más grande
+después de no lanzar lentes (`references/costes.md`):
+
+| Hallazgo | Qué se hace |
+|---|---|
+| Grave, o medio que cambia un dato, un acceso o un importe | Reencargo |
+| Medio de forma (una guía de diseño, un texto, cobertura de pruebas) | Va en el reencargo del mismo bloque si ya hay uno y es barato. Si no, excepción escrita en el contrato o a «para después» |
+| Menor | Excepción escrita o «para después». Nunca un reencargo suelto |
+
+**Y espera a que vuelvan todas las lentes del bloque: un solo reencargo por bloque.** Dos
+reencargos al mismo dueño pagan dos veces su contexto, y el segundo puede pisar al primero.
+
 **Vuelve al dueño del bloque, nunca a un agente nuevo.** Tiene el contexto, posee los
 archivos y sabe por qué los escribió así.
 
@@ -434,7 +468,10 @@ archivos y sabe por qué los escribió así.
    condición esté en el código que decide qué bloque cuenta como hecho: se olvida sola.
 6. **Cada test nuevo del reencargo tiene que haberse visto fallar.** Pide al dueño que rompa
    a propósito la regla que ese test protege —un mutante—, lo vea caer y deshaga el cambio,
-   y que lo diga en su reporte. Un test que nunca falló delante de nadie puede no estar
+   y que lo diga en su reporte. **El mutante va en una copia fuera del árbol:** si el
+   servidor es compartido, mutar el árbol le sirve código mutado a los demás agentes. Los
+   tests que solo caen con la app mutada (acceso en E2E) los ves caer tú en la barrera,
+   cuando ya no corre nadie. Un test que nunca falló delante de nadie puede no estar
    probando nada: es la misma clase de defecto que la lente acaba de encontrar (ver
    `lente-adversarial`, corrección y cobertura).
 
