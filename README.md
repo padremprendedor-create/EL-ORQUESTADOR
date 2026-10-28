@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/padremprendedor-create/EL-ORQUESTADOR/actions/workflows/ci.yml/badge.svg)](https://github.com/padremprendedor-create/EL-ORQUESTADOR/actions/workflows/ci.yml) ![licencia MIT](https://img.shields.io/badge/licencia-MIT-blue) ![Claude Code](https://img.shields.io/badge/Claude%20Code-plugin-8a5cf6) ![proyecto en español](https://img.shields.io/badge/idioma-español-ffd24a)
 
-**El plano antes del martillo.** Un plugin de [Claude Code](https://claude.com/claude-code) —cuatro skills y dos agentes— para construir con agentes de IA sin que el resultado salga correcto y aun así inútil.
+**El plano antes del martillo.** Un plugin de [Claude Code](https://claude.com/claude-code) —cuatro skills y tres agentes— para construir con agentes de IA sin que el resultado salga correcto y aun así inútil.
 
 La IA optimiza lo que le pediste, no lo que querías. Y un agente que reporta `"status": "completado"` te está dando su opinión, no una prueba. Este plugin cierra esos dos huecos: escribes qué significa «terminado» **antes** de construir, y lo contrasta alguien que no fue quien construyó.
 
@@ -19,14 +19,15 @@ La IA optimiza lo que le pediste, no lo que querías. Y un agente que reporta `"
 
 Las cuatro se usan juntas, pero `spec` y `verificar-spec` funcionan solas si lo único que quieres es dejar de entregar a ciegas.
 
-Y **dos agentes**, que son el trabajo que se repite en cada ronda:
+Y **tres agentes**, que son el trabajo que se repite en cada ronda:
 
 | Agente | Qué es |
 |---|---|
 | **`bloque-constructor`** | Construye **un** bloque respetando la propiedad exclusiva de archivos. Lleva dentro los comandos que no puede correr en paralelo, «nunca commitees ni pushees», «producción es solo lectura» y el formato de reporte |
 | **`lente-adversarial`** | No construye: intenta **demostrar que un bloque está roto**. Lleva dentro «refutar, no revisar», reproducir contra el sistema real en vez de razonar sobre el código, y no volcar secretos en su reporte |
+| **`refutador`** | Al revés que la lente: toma **un** hallazgo grave suyo e intenta demostrar que es falso, reproduciéndolo de nuevo. Lo que sobrevive llega al orquestador |
 
-Que sean agentes y no párrafos de un brief tiene una consecuencia que importa: **sus reglas se aplican tanto si quien orquesta se acordó de pegarlas como si no.**
+Que sean agentes y no párrafos de un brief tiene una consecuencia que importa: **sus reglas se aplican tanto si quien orquesta se acordó de pegarlas como si no.** Y llevan una lista cerrada de herramientas: ninguno lanza subagentes ni toca herramientas MCP (las que aplican migraciones o despliegan, incluidas), y la lente y el refutador no editan archivos. Por qué y hasta dónde llega ese freno: [SECURITY.md](SECURITY.md).
 
 Y **un workflow**, para quien use la herramienta Workflow de Claude Code:
 
@@ -91,7 +92,7 @@ Desde Claude Code, dos comandos:
 
 El plugin y el marketplace se llaman igual: este repo publica un solo plugin. Luego pídele *"escribe el SPEC de esto"* o *"orquesta esto"*.
 
-> **Los agentes llevan el prefijo del plugin.** Instalado así son `el-orquestador:bloque-constructor` y `el-orquestador:lente-adversarial`; copiados a mano (abajo), van a secas. Si ves `Agent type not found`, eso es lo primero que mirar — y lo segundo, reiniciar la sesión: **el registro de agentes se carga al arrancar**, así que uno recién instalado no aparece hasta la siguiente.
+> **Los agentes llevan el prefijo del plugin.** Instalado así son `el-orquestador:bloque-constructor`, `el-orquestador:lente-adversarial` y `el-orquestador:refutador`; copiados a mano (abajo), van a secas. Si ves `Agent type not found`, eso es lo primero que mirar — y lo segundo, reiniciar la sesión: **el registro de agentes se carga al arrancar**, así que uno recién instalado no aparece hasta la siguiente.
 
 ### A mano, sin el gestor de plugins
 
@@ -101,7 +102,7 @@ cp -r EL-ORQUESTADOR/plugins/el-orquestador/skills/* ~/.claude/skills/
 cp -r EL-ORQUESTADOR/plugins/el-orquestador/agents/* ~/.claude/agents/
 ```
 
-El workflow no hace falta instalarlo: a mano se invoca por ruta (`scriptPath`) a `EL-ORQUESTADOR/plugins/el-orquestador/workflows/lentes-bloque.js`, pero solo si el clon está en tu directorio de trabajo o en uno que hayas añadido, porque la herramienta no acepta un archivo que no puedas leer ya. Si no lo está, copia ese archivo a tu directorio temporal de la sesión e invócalo desde ahí. En los dos casos, pásale `agentType: "lente-adversarial"` en sus argumentos, porque los agentes copiados van sin prefijo.
+El workflow no hace falta instalarlo: a mano se invoca por ruta (`scriptPath`) a `EL-ORQUESTADOR/plugins/el-orquestador/workflows/lentes-bloque.js`, pero solo si el clon está en tu directorio de trabajo o en uno que hayas añadido, porque la herramienta no acepta un archivo que no puedas leer ya. Si no lo está, copia ese archivo a tu directorio temporal de la sesión e invócalo desde ahí. En los dos casos, pásale `agentType: "lente-adversarial"` en sus argumentos, porque los agentes copiados van sin prefijo; el refutador se deduce de ese valor (`refutador`, a secas) y, si hiciera falta otro, va en `agentTypeRefutador`.
 
 Si una skill no aparece, comprueba que su carpeta se llama igual que el campo `name` de su `SKILL.md`: cuando no coinciden, **Claude Code no la encuentra y no avisa**. `node scripts/check-skills.mjs` lo comprueba por ti, junto con los manifiestos y los agentes.
 
@@ -118,7 +119,7 @@ cp EL-ORQUESTADOR/plugins/el-orquestador/codex/AGENTS.md               ~/.codex/
 - **`revisor`** — `sandbox_mode = "read-only"`. Es el perfil por defecto: no puede escribir nada.
 - **`constructor`** — `workspace-write` sin red, para implementar dentro de un worktree ya asignado.
 
-> **Esto no es opcional, es seguridad.** Un perfil mal escrito **se ignora en silencio** y la corrida cae a `workspace-write`: creerías estar en solo-lectura y no lo estarías. Comprueba que carga antes de confiar en él:
+> **Esto no es opcional, es seguridad.** Un perfil mal escrito **se ignora en silencio** y la corrida cae al sandbox por defecto de tu versión: en Codex 0.146 era `workspace-write`, así que creerías estar en solo-lectura y no lo estarías (en 0.163 cayó a `read-only`, pero no cuentes con ello). Comprueba que carga antes de confiar en él:
 >
 > ```bash
 > codex exec -p revisor "di solo: perfil ok" </dev/null
@@ -135,8 +136,10 @@ Las skills se mencionan entre sí donde ayudan. Estas se nombran pero **no viene
 - `diseno` y `ui-ux-pro-max` — cuando la ronda toca interfaz
 - `artifact-design` — para el informe HTML del paso 8 del orquestador (es una skill del arnés de Claude Code, no un archivo)
 - El pack `audit-*` — para «¿qué se rompe en producción?», que es otra pregunta distinta de «¿esto cumplió lo que prometió?»
+- `codex-imagenes` — para generar imágenes con Codex
+- Un hook de seguridad como `safety-audit`, que intercepte SQL destructivo, migraciones y deploys
 
-Si una skill te manda a algo que no tienes, sáltate ese paso: ninguno de los tres es un eslabón obligatorio.
+Si una skill te manda a algo que no tienes, sáltate ese paso: ninguno es un eslabón obligatorio, y las skills ya lo dicen como condicional («si lo tienes…»).
 
 ---
 
@@ -216,7 +219,7 @@ Si tu proyecto tiene rondas con agentes fijos, canales propios o un vault, deriv
 
 ## Antes de instalarlo, dos cosas
 
-Seguir estas skills hace que un agente lance subagentes, reescriba archivos, aplique migraciones y commitee. Los frenos son reglas escritas, no candados técnicos, y hay **un fallo silencioso que conviene comprobar a mano**: un perfil de Codex mal escrito no da error, se ignora, y la corrida cae a modo escritura cuando creías estar en solo lectura. Todo eso, con lo que hay que comprobar, está en **[SECURITY.md](SECURITY.md)**.
+Seguir estas skills hace que un agente lance subagentes, reescriba archivos, aplique migraciones y commitee. Los frenos son casi todos reglas escritas, no candados técnicos —el único técnico es la lista cerrada de herramientas de los agentes—, y hay **un fallo silencioso que conviene comprobar a mano**: un perfil de Codex mal escrito no da error, se ignora, y la corrida cae a modo escritura cuando creías estar en solo lectura. Todo eso, con lo que hay que comprobar, está en **[SECURITY.md](SECURITY.md)**.
 
 Y si vas a proponer un cambio: **[CONTRIBUTING.md](CONTRIBUTING.md)** dice qué se acepta, qué no, y cuál es la única frase del método que no se toca.
 

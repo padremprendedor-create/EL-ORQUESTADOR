@@ -1,16 +1,10 @@
 ---
 name: spec
 description: >
-  Convierte una idea o encargo en un SPEC.md versionado ANTES de construir:
-  objetivo real de negocio (no la tarea pedida), qué queda fuera, bloques con
-  checkpoint humano, criterios de éxito verificables sí/no, y acciones que
-  requieren permiso humano. Fase I del Spec-Driven Development; insumo de
-  `verificar-spec`. Úsala al empezar cualquier construcción de varios pasos —
-  feature, automatización, agente, migración, ronda nocturna, rediseño — o
-  cuando pidan "hazme una landing", "arma un CRM", "automatiza esto", "vamos a
-  construir X", o cuando un plan ya arrancó y nadie escribió cómo se sabrá que
-  salió bien. NO para trabajo trivial de un paso (un typo, un rename): ahí un
-  SPEC es burocracia.
+  Escribe un SPEC.md con criterios verificables sí/no ANTES de construir. Úsala al
+  empezar algo de varios pasos ("vamos a construir X", "hazme una landing", "arma un
+  CRM", "automatiza esto") o si un plan arrancó sin decir cómo se sabrá que salió bien.
+  No para un typo.
 ---
 
 # spec — el plano antes del martillo
@@ -132,11 +126,11 @@ Lista de acciones que no se ejecutan solas aunque el modo de permisos las deje p
 borrar o modificar datos reales, publicar, desplegar a producción, escribirle a un
 cliente, gastar dinero.
 
-Esto se apoya en el hook `safety-audit` (`~/.claude/hooks/safety-audit.mjs`), que ya
-intercepta SQL destructivo, migraciones, borrados en Drive y deploys. El SPEC añade
-lo que el hook no puede adivinar: lo específico de **este** trabajo. Si aquí aparece
-algo que el hook no cubre, dilo al entregar el SPEC — puede que valga la pena
-ampliarlo.
+Si tienes un hook de seguridad que ya intercepta SQL destructivo, migraciones, borrados
+y deploys (por ejemplo un `safety-audit` en `~/.claude/hooks/`), esto se apoya en él, y
+el SPEC añade lo que el hook no puede adivinar: lo específico de **este** trabajo. Si
+aquí aparece algo que el hook no cubre, dilo al entregar el SPEC — puede que valga la
+pena ampliarlo. Si no tienes ninguno, esta lista es el único freno: escríbela entera.
 
 ### Supuestos
 Todo lo que dedujiste sin que te lo dijeran. Es el campo más fácil de saltarse y el

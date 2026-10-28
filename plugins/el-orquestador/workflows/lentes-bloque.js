@@ -11,14 +11,16 @@
  *   - Cada grave pasa por un REFUTADOR con el encargo invertido antes de llegar al orquestador.
  *     Medido: de 15 graves de una ronda, 4 eran falsos. Un grave de una lente se refuta en
  *     cuanto ella cierra, sin esperar a sus hermanas (pipeline, no dos fases con barrera).
+ *     El refutador corre con su propio agente (`refutador`), nunca como lente: el prompt de
+ *     sistema de la lente dice «ante la duda, hay fallo», justo lo contrario de su encargo.
  *   - `no_verificado` es obligatorio. Una lente que no dice lo que no pudo mirar es
  *     indistinguible de una que miró.
  *   - Una lente que vuelve SIN informe (cortada por el entorno, sin presupuesto, error) sale
  *     en el resumen con su nombre. Tirarla en silencio es dar por verificada su clase.
  *
  * Uso: solo si quien encargó la ronda autorizó workflows. Por nombre
- * (`el-orquestador:lentes-bloque`: deducido de la convención de los plugins, sin comprobar
- * todavía en una ronda real) o por `scriptPath`. Ojo: `scriptPath` no acepta la caché de
+ * (`el-orquestador:lentes-bloque`: comprobado, con el plugin instalado aparece con ese nombre
+ * en la lista de skills de la sesión) o por `scriptPath`. Ojo: `scriptPath` no acepta la caché de
  * plugins, que es donde vive este archivo cuando se instala como plugin (la herramienta
  * contesta que solo acepta un archivo que ya puedas leer). Copia este archivo a tu directorio
  * temporal de la sesión, comprueba la copia (el mismo hash, o un diff contra el original que
@@ -51,6 +53,14 @@ if (FALTAN.length > 0 || !Array.isArray(A.lentes) || A.lentes.length === 0) {
 
 // Opcionales, con el valor que sirve en la mayoría de los repos.
 const AGENTE = A.agentType || 'el-orquestador:lente-adversarial' // a secas si los agentes se copiaron a mano
+// El refutador NO puede ser la lente: recibiría a la vez «ante la duda, hay fallo» (su prompt de
+// sistema) y «por defecto, es falso» (su encargo), y los falsos graves que existe para tumbar
+// sobrevivirían. Se deriva de AGENTE para que quien pasó `lente-adversarial` a secas reciba
+// `refutador` a secas. Si AGENTE es otro tipo (`general-purpose` cuando los agentes del plugin
+// no están registrados), el refutador también va en `general-purpose`, que no trae sesgo.
+const AGENTE_REFUTADOR =
+  A.agentTypeRefutador ||
+  (/lente-adversarial$/.test(AGENTE) ? AGENTE.replace(/lente-adversarial$/, 'refutador') : 'general-purpose')
 const SCRATCH = A.scratch || 'tu directorio temporal (fuera del repo)'
 const PROHIBIDO =
   A.prohibido ||
@@ -82,9 +92,22 @@ const LENTE = {
     },
     lo_que_intente_y_no_colo: { type: 'array', items: { type: 'string' } },
     no_verificado: { type: 'array', items: { type: 'string' } },
+    // Misma forma que la salida de `agents/lente-adversarial.md`: número del criterio → resultado.
+    criterios_del_spec: {
+      type: 'object',
+      additionalProperties: { type: 'string', enum: ['cumple', 'no cumple', 'no verificable'] },
+    },
     para_el_orquestador: { type: 'string' },
   },
-  required: ['lente', 'veredicto', 'hallazgos', 'lo_que_intente_y_no_colo', 'no_verificado', 'para_el_orquestador'],
+  required: [
+    'lente',
+    'veredicto',
+    'hallazgos',
+    'lo_que_intente_y_no_colo',
+    'no_verificado',
+    'criterios_del_spec',
+    'para_el_orquestador',
+  ],
 }
 
 const REFUTACION = {
@@ -121,10 +144,11 @@ ${A.lectura}
 - Prueba el estado degenerado: sin sesión, cero filas, dependencia lenta o caída.
 - Grave = el bloque, tal cual, deja abierta una de las clases de arriba o incumple un criterio del SPEC. Un estilo no es un hallazgo.
 - Si el entorno te bloquea una ejecución, no lo guardes para el final: devuelve ya tu veredicto con el bloqueo en la primera línea de para_el_orquestador.
-- no_verificado es OBLIGATORIO: lo que no pudiste comprobar y por qué.`
+- no_verificado es OBLIGATORIO: lo que no pudiste comprobar y por qué.
+- criterios_del_spec: cada criterio del SPEC que toque tu lente, por su número, con cumple / no cumple / no verificable. Sin evidencia archivo:línea es no verificable, nunca cumple. Vacío ({}) si el contexto no trae criterios.`
 }
 
-function promptRefutador(h, l) {
+function promptRefutador(h, l, i) {
   return `Eres un REFUTADOR. La lente «${l.titulo}» del bloque ${A.bloque} afirma este defecto GRAVE:
 
 id: ${h.id}
@@ -135,7 +159,7 @@ arreglo que propone: ${h.arreglo_propuesto}
 
 ${A.contexto}
 
-Tu encargo es demostrar que este defecto NO existe o NO es grave: que otra parte del contrato ya lo cierra, que el código no se comporta como supone, o que la reproducción no se sostiene. Por defecto, es falso. Vuelve a ejecutar la reproducción tú mismo contra el sistema real (tus scripts en ${SCRATCH}/refuta-${l.key}-${h.id}/). Si se sostiene y el defecto es real y grave, refutado=false. Si no consigues reproducirlo, refutado=true y di por qué. En matiz: si es real pero de menor gravedad, o si el arreglo propuesto es malo, dilo.
+Tu encargo es demostrar que este defecto NO existe o NO es grave: que otra parte del contrato ya lo cierra, que el código no se comporta como supone, o que la reproducción no se sostiene. Por defecto, es falso. Vuelve a ejecutar la reproducción tú mismo contra el sistema real (tus scripts en ${SCRATCH}/refuta-${l.key}-${i + 1}/). Si se sostiene y el defecto es real y grave, refutado=false. Si no consigues reproducirlo, refutado=true y di por qué. Si el entorno te bloquea y no llegas a intentarlo, refutado=false con el bloqueo en la primera línea de evidencia: un grave que nadie pudo refutar sigue en pie. En matiz: si es real pero de menor gravedad, o si el arreglo propuesto es malo, dilo.
 PROHIBIDO: ${PROHIBIDO}. Nunca pegues claves ni tokens.`
 }
 
@@ -146,12 +170,17 @@ const resultados = await pipeline(
     if (!r) return { lente: l.key, informe: null, refutaciones: [] }
     const graves = r.hallazgos.filter((h) => h.gravedad === 'grave')
     if (graves.length === 0) return { lente: l.key, informe: r, refutaciones: [] }
-    // Cada refutación se empareja con su grave dentro de su propia promesa: no se confía en el
-    // orden de llegada ni en el id que devuelva el refutador.
+    // Cada refutación se empareja con su grave por su POSICIÓN entre los graves de esta lente,
+    // fijada dentro de su propia promesa. Ni el orden de llegada ni el id: el id lo inventa la
+    // lente, y dos graves con el mismo id se cruzaban sus refutaciones.
     return parallel(
-      graves.map((h) => () =>
-        agent(promptRefutador(h, l), { label: `refuta:${l.key}:${h.id}`, phase: 'Refutar', agentType: AGENTE, schema: REFUTACION })
-          .then((ref) => ({ id: h.id, refutacion: ref || null })),
+      graves.map((h, i) => () =>
+        agent(promptRefutador(h, l, i), {
+          label: `refuta:${l.key}#${i + 1}:${h.id}`,
+          phase: 'Refutar',
+          agentType: AGENTE_REFUTADOR,
+          schema: REFUTACION,
+        }).then((ref) => ({ indice: i, id: h.id, refutacion: ref || null })),
       ),
     ).then((refs) => ({ lente: l.key, informe: r, refutaciones: refs.filter(Boolean) }))
   },
@@ -162,11 +191,12 @@ const resultados = await pipeline(
 const confirmados = []
 const refutados = []
 for (const res of resultados.filter(Boolean)) {
+  // Mismo filtro sobre el mismo informe que en el pipeline: los índices coinciden.
   const graves = res.informe ? res.informe.hallazgos.filter((h) => h.gravedad === 'grave') : []
-  for (const h of graves) {
-    const par = res.refutaciones.find((x) => x.id === h.id)
+  for (const [i, h] of graves.entries()) {
+    const par = res.refutaciones.find((x) => x.indice === i)
     const ref = par ? par.refutacion : null
-    const fila = { lente: res.lente, id: h.id, que: h.que, refutacion: ref }
+    const fila = { lente: res.lente, indice: i, id: h.id, que: h.que, refutacion: ref }
     if (ref && ref.refutado) refutados.push(fila)
     else confirmados.push(fila)
   }
