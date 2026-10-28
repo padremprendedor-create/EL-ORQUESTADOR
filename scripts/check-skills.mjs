@@ -16,6 +16,11 @@
  *      la clase de rotura que solo existe cuando skills y agentes viajan juntos.
  *   4. El manifiesto del plugin o la entrada del marketplace apuntan a una
  *      carpeta que no existe. Entonces no falla una skill: no se instala nada.
+ *   5. Un agente pierde su lista cerrada de herramientas. Sin `tools:` (o con
+ *      el campo mal escrito, que Claude Code ignora sin avisar) hereda TODAS las
+ *      de la sesion, MCP de escritura incluidas, y "nunca aplica migraciones"
+ *      vuelve a depender solo del prompt. Tambien falla si la lista nombra
+ *      `Agent`/`Task` o algo `mcp__`: es lo que la lista existe para dejar fuera.
  *
  * Tambien mira que no falte `description`: es el campo que decide si la skill se
  * activa (y, en un agente, si el modelo lo elige). Sin el, existe y no se usa.
@@ -161,6 +166,22 @@ for (const { nombre, dir, source } of pluginsDeclarados) {
       if (!/^description:/m.test(fm)) {
         errores.push(`${source}/agents/${archivo} no declara "description" (sin ella el modelo no lo elige)`);
       }
+      // Solo la forma de una linea con comas, que es la que usan los agentes de
+      // aqui: una lista YAML en varias lineas no se leeria y fallaria como ausente.
+      const tools = /^tools:[ \t]*(.+)$/m.exec(fm)?.[1];
+      if (!tools) {
+        errores.push(
+          `${source}/agents/${archivo} no declara "tools:" — sin lista cerrada hereda todas las herramientas, MCP incluidas`,
+        );
+      } else {
+        const sobran = tools
+          .split(",")
+          .map((t) => t.trim())
+          .filter((t) => /^(Agent|Task)\b/.test(t) || t.startsWith("mcp__"));
+        if (sobran.length > 0) {
+          errores.push(`${source}/agents/${archivo} da en "tools:" lo que la lista existe para quitar: ${sobran.join(", ")}`);
+        }
+      }
     }
   }
 
@@ -227,7 +248,7 @@ for (const { nombre, dir, source } of pluginsDeclarados) {
     // en un ejemplo, en una nota) y tres lineas identicas en CI son ruido que
     // hace que se dejen de leer los errores.
     const citados = new Set(
-      [...texto.matchAll(/`(?:[\w-]+:)?(bloque-constructor|lente-adversarial)`/g)].map((m) => m[1]),
+      [...texto.matchAll(/`(?:[\w-]+:)?(bloque-constructor|lente-adversarial|refutador)`/g)].map((m) => m[1]),
     );
     for (const citado of citados) {
       if (!agentes.has(citado)) {

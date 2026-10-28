@@ -1,15 +1,10 @@
 ---
 name: verificar-spec
 description: >
-  Verificación ADVERSARIAL de un trabajo contra los criterios de éxito de su
-  SPEC.md: intenta demostrar que NO cumple, criterio por criterio con evidencia,
-  y devuelve CUMPLE / NO CUMPLE / NO VERIFICABLE más un veredicto que decide si
-  se integra o se devuelve. Distinta del pack `audit-*` (riesgo de producción
-  por dimensión, sobre código): esta mide promesa cumplida, sobre cualquier
-  entregable. Úsala antes de commitear o integrar, cuando un agente reporta
-  "completado" y nadie lo contrastó, al cerrar una ronda nocturna de agentes, o
-  cuando pidan "revisa si esto quedó bien", "verifica que cumple", "segunda
-  opinión", "búscale los fallos". Sin SPEC.md, ofrece escribirlo con `spec`.
+  Verifica adversarialmente un trabajo contra su SPEC.md: CUMPLE / NO CUMPLE / NO
+  VERIFICABLE por criterio, con evidencia, y si se integra. Úsala antes de integrar,
+  si un agente dice "completado", o con "verifica que cumple", "revisa si quedó bien",
+  "búscale los fallos".
 ---
 
 # verificar-spec — el segundo par de ojos que quiere que estés equivocado
@@ -17,18 +12,20 @@ description: >
 Toma un **SPEC.md** y el trabajo que dice cumplirlo, e intenta **demostrar que no lo
 cumple**. Lo que sobrevive a ese intento está verificado. Lo que no, vuelve.
 
-## Por qué existe, y en qué se diferencia de `audit-*`
+## Por qué existe, y en qué se diferencia de una auditoría de riesgo
 
-Son preguntas distintas y no se sustituyen:
+Son preguntas distintas y no se sustituyen. La auditoría de ejemplo es el pack `audit-*`
+(Premortem), que no viene en este plugin:
 
 | | Pregunta | Sobre qué | Salida |
 |---|---|---|---|
-| `audit-*` (pack Premortem) | ¿Qué puede romperse en producción? | Código Next.js/Supabase/Vercel | Hallazgos P0-P3 por dimensión de riesgo |
+| Auditoría de riesgo (p. ej. `audit-*`) | ¿Qué puede romperse en producción? | Código Next.js/Supabase/Vercel | Hallazgos P0-P3 por dimensión de riesgo |
 | **`verificar-spec`** | ¿Esto cumple lo que prometió? | Cualquier entregable | Veredicto por criterio + decisión de integrar |
 
-Un trabajo puede pasar las siete auditorías de riesgo y no servir para nada, porque
+Un trabajo puede pasar todas las auditorías de riesgo y no servir para nada, porque
 resolvió la tarea equivocada impecablemente. Y al revés: puede cumplir su SPEC
-perfectamente y aun así ser inseguro. Corre las dos cuando el trabajo lo justifique.
+perfectamente y aun así ser inseguro. Si tienes un pack de auditoría como ese, corre las
+dos cuando el trabajo lo justifique; si no, esta skill no lo sustituye: dilo en el informe.
 
 El hueco concreto que cierra: un agente escribe archivos, reporta
 `{"status":"completado"}`, y quien revisa comprueba que **los archivos existen y

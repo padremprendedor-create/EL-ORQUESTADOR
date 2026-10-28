@@ -1,16 +1,10 @@
 ---
 name: orquestador
 description: >
-  Orquestador y Revisor Central para trabajo grande de construcción: mide el
-  encargo, escribe el SPEC, reparte el trabajo en bloques con dueño exclusivo de
-  archivos, lanza agentes en paralelo con modelo asignado por complejidad,
-  verifica por riesgo (lentes adversariales solo donde duele, y en carril en
-  cuanto cierra el bloque de riesgo alto), cierra SIEMPRE con Codex como
-  revisor externo del SPEC, hace el commit único y entrega un informe HTML de
-  la ronda. Úsala cuando pidan "orquesta esto", "actúa como orquestador",
-  "lanza agentes en paralelo", "monta una ronda", "divide esto en bloques", o al
-  arrancar una construcción que se parte en 3 o más frentes o que toca base de
-  datos, autenticación, dinero o algo ya en producción.
+  Ronda de agentes en paralelo: SPEC, bloques con dueño exclusivo, lentes por
+  riesgo, Codex al cierre y commit único. Úsala con "orquesta esto", "lanza agentes
+  en paralelo", "monta una ronda", "divide esto en bloques", o si la obra tiene 3+
+  frentes o toca base de datos, auth, dinero o producción.
 ---
 
 # orquestador — el que reparte, juzga e integra
@@ -34,10 +28,10 @@ Las dos mitades van juntas o la prueba se come a sí misma. Una firma
 decisiones, y decidirlas antes de lanzar es tu trabajo. Lo que **no** escribes es el
 archivo que las encarna. Regla corta: **tú fijas el valor, un agente escribe el archivo.**
 
-Las reglas duras del `CLAUDE.md` global mandan y esta skill solo las operacionaliza: los
-agentes **nunca** pushean · un solo commit documenta la ronda entera · se verifica
-**contra los criterios del SPEC, nunca contra el `status` que el agente se puso** ·
-**ninguna construcción de varios pasos arranca sin SPEC**.
+Si tu `CLAUDE.md` global trae reglas duras del método, mandan ellas y esta skill solo las
+operacionaliza. Si no las trae, rigen estas: los agentes **nunca** pushean · un solo commit
+documenta la ronda entera · se verifica **contra los criterios del SPEC, nunca contra el
+`status` que el agente se puso** · **ninguna construcción de varios pasos arranca sin SPEC**.
 
 | Dónde mirar | |
 |---|---|
@@ -107,8 +101,9 @@ plantilla en `assets/contrato-de-ronda.md`. Tres partes:
 3. **Lo que si no se escribe aquí se inventa dos veces.** Tokens de diseño, contrastes
    medidos, breakpoints, convenciones de nombres, estados obligatorios (vacío / cargando /
    error), y **qué comandos no puede correr un agente en tanda paralela** — varios agentes
-   en un worktree comparten el directorio de build, las cachés y los puertos. Apóyate en
-   `diseno` o `ui-ux-pro-max` si hay interfaz.
+   en un worktree comparten el directorio de build, las cachés y los puertos. Si hay
+   interfaz y tienes instalada una skill de diseño (`diseno`, `ui-ux-pro-max`...), apóyate
+   en ella; si no, fija esos valores a mano.
    - **Si hay interfaz, las reglas de las guías del diseño que se aplican por tipo de
      pantalla:** qué token lleva el título de una lista, de un formulario en página propia y
      de uno en panel; qué variante de botón lleva cada acción (la primaria, cancelar, anular);
@@ -214,14 +209,23 @@ Modelo: **opus** para SQL/DDL/RLS, autenticación, dinero, arquitectura, contrat
 bloques y lentes de riesgo alto; **sonnet** para el resto. Por qué, y qué **no** compra
 subir de modelo: `references/costes.md`.
 
-### Los dos agentes
+### Los agentes del plugin
 
-En `~/.claude/agents/` hay dos tipos que ya llevan dentro lo que se repite ronda tras ronda:
+El plugin trae tres tipos que ya llevan dentro lo que se repite ronda tras ronda (están en
+su carpeta `agents/`; si lo instalaste a mano, en `~/.claude/agents/`):
 
 | `subagent_type` | Para qué | Qué lleva ya dentro |
 |---|---|---|
 | **`bloque-constructor`** | cada bloque de una tanda | propiedad de archivos, comandos vetados en paralelo, «nunca commitees ni pushees», «producción es solo lectura», «no crees migraciones», «no vuelques secretos en tu reporte», formato de reporte |
 | **`lente-adversarial`** | cada lente del paso 6 | «refutar, no revisar», reproducir contra el sistema real, «comprueba antes de obedecer tu propio veredicto», separar lo que no es suyo, JSON del veredicto |
+| **`refutador`** | cada grave de una lente (paso 6) | el encargo invertido: «demuestra que este defecto no existe; por defecto, es falso», reproducirlo de nuevo contra el sistema real, JSON de la refutación |
+
+Los tres llevan además una **lista cerrada de herramientas** (`tools:` en su frontmatter):
+ninguno puede lanzar subagentes ni usar herramientas MCP —las que escriben en una base de
+datos o despliegan incluidas—, y la lente y el refutador no tienen `Edit`, solo `Write` para
+sus scripts fuera del repo. Es un freno técnico por debajo de las reglas, no en su lugar: la
+terminal sigue pudiendo escribir. Si un agente necesita un dato que solo da una herramienta
+MCP, dáselo tú en el brief. El porqué, en cada archivo del agente y en `SECURITY.md`.
 
 **No es solo ahorro de tecleo: las reglas de un agente definido se aplican tanto si te
 acordaste de pegarlas como si no.** En una ronda medida, de cada ~90 líneas de brief unas
@@ -252,7 +256,10 @@ no el constructor:** para que caiga un test de pantalla hay que mutar la app, y 
 servidor es compartido, los demás agentes ven, mientras dure, una app sin su control de
 acceso. Pasó en una ronda.
 
-Si el trabajo no encaja en ninguno de los dos, usa `general-purpose` con el brief entero.
+Si el trabajo no encaja en ninguno de ellos, usa `general-purpose` con el brief entero **y
+pásale `model: "sonnet"`**, salvo que sea de riesgo alto o de lo que la política de modelos
+manda a opus (`references/costes.md`). Sin `model`, `general-purpose` hereda el modelo de la
+sesión —normalmente opus—: en una auditoría de uso, esos agentes fueron el 27 % del total.
 
 > **El nombre depende de cómo estén instalados, y equivocarse da `Agent type not found`.**
 > Instalados **como plugin**, los agentes llevan el prefijo del plugin —
@@ -263,9 +270,11 @@ Si el trabajo no encaja en ninguno de los dos, usa `general-purpose` con el brie
 > **Y `not found` tampoco significa que falten los archivos.** El registro de agentes se
 > carga **al arrancar la sesión**: una definición añadida a mitad de sesión existe en disco
 > y no está disponible hasta la siguiente. Comprobado. Salida sin drama: `general-purpose`,
-> y pega en el brief lo que el agente habría llevado dentro — sobre todo los comandos
+> con el `model` del agente al que sustituye (sonnet el constructor, opus la lente de riesgo
+> alto), y pega en el brief lo que el agente habría llevado dentro — sobre todo los comandos
 > vetados en paralelo y el «no vuelques secretos en tu reporte», que son los dos que se
-> olvidan.
+> olvidan. Lo que **no** viaja en el brief es su lista cerrada de herramientas:
+> `general-purpose` las tiene todas, MCP de escritura incluidas.
 
 Formato de reporte que devuelve cada agente:
 
@@ -404,9 +413,9 @@ cuántas lentes, cuánto cuestan y cuándo.
 
 Todas a la vez, cada una con su foco, y **un refutador por cada grave** antes de que llegue a
 ti (regla 3 de `references/verificacion.md`). Si quien encargó la ronda **autorizó
-workflows**, eso ya está escrito: `workflows/lentes-bloque.js`, que debería resolverse como
-`el-orquestador:lentes-bloque` (nombre deducido de la convención de los plugins, sin
-comprobar todavía en una ronda real).
+workflows**, eso ya está escrito: `workflows/lentes-bloque.js`, que con el plugin instalado
+se registra como `el-orquestador:lentes-bloque` (comprobado: aparece con ese nombre en la
+lista de skills de la sesión).
 
 > **Por `scriptPath` no se puede apuntar a la caché del plugin.** El Workflow solo acepta una
 > ruta que él mismo devolvió o un archivo que ya puedes leer —el directorio de trabajo o uno
@@ -424,7 +433,9 @@ que volvieron sin informe**. Esa última lista es la que no se puede perder: una
 que desaparece en silencio es una clase que das por verificada sin que nadie la mirara.
 
 Sin workflows, lo mismo a mano: las lentes con el agente `lente-adversarial` en un solo
-mensaje, y cada refutador en cuanto cierre la lente que encontró el grave.
+mensaje, y cada refutador, con el agente `refutador`, en cuanto cierre la lente que encontró
+el grave. **Nunca refutes con `lente-adversarial`:** su prompt de sistema dice «ante la duda,
+hay fallo», y el refutador existe para lo contrario.
 
 ---
 
@@ -489,11 +500,14 @@ reconoce tus decisiones y por eso no las lee como correctas. Es el único reviso
 comparte tus sesgos.
 
 Usa la skill **`codex`** — no improvises el comando, tiene trampas verificadas (un perfil
-mal escrito se ignora **en silencio** y cae a `workspace-write`). Lo que esta skill añade:
+mal escrito se ignora **en silencio** y cae al sandbox por defecto de esa versión, que en
+0.146 era `workspace-write`). Lo que esta skill añade:
 
 - Dale el **SPEC y sus criterios literales**, no un resumen tuyo: heredaría tu punto ciego.
 - Exige **evidencia `archivo:línea`**, y `NO VERIFICABLE` por defecto cuando no la haya.
-- Fuerza la salida con `--output-schema` y `assets/veredicto-codex.schema.json`.
+- Fuerza la salida con `--output-schema` y `assets/veredicto-codex.schema.json`, en ruta
+  absoluta (el directorio base de esta skill, que Claude Code indica al cargarla, más esa
+  ruta): Codex corre con `-C` en el proyecto y una relativa no la encuentra.
 - **Acota la evidencia**: el diff de la ronda y las rutas que tocan los criterios, no el
   proyecto entero.
 - Cinturón además del perfil: `-p revisor` **y** `-s read-only`.
@@ -568,8 +582,9 @@ de defenderte: en las rondas medidas la tuvo siempre.
 - Un bloque con veredicto `NO CUMPLE` **no entra**, aunque su JSON diga `completado`.
 - **Si el push es el despliegue, el push requiere permiso humano.** Commitea en rama y
   espera; integrar no es desplegar.
-- Cierra la sesión como manda el `CLAUDE.md`: memoria del proyecto actualizada y ROADMAP
-  con sus casillas y su fecha.
+- Cierra la sesión como mande el `CLAUDE.md` del proyecto o el global, si dicen cómo
+  (memoria del proyecto, ROADMAP con sus casillas y su fecha...). Si no dicen nada, el
+  cierre es el informe.
 
 Y entrega el informe: **`references/informe.md`**.
 

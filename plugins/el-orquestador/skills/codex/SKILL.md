@@ -1,13 +1,10 @@
 ---
 name: codex
 description: >
-  Invoca el CLI de Codex (OpenAI) como segundo par de ojos INDEPENDIENTE desde
-  Claude Code: revisión de cambios sin commitear, verificación adversarial de un
-  SPEC, o implementación acotada en un worktree. Úsala cuando pidan "segunda
-  opinión", "que lo revise Codex", "contrasta esto con otro modelo", "revisión
-  cruzada", "pásaselo a Codex", antes de un commit importante, o al cerrar una
-  ronda de agentes donde quien construyó no puede ser quien verifica. También
-  para dudas sobre perfiles, sandbox o flags del CLI de Codex.
+  Codex (CLI de OpenAI) como revisor independiente: revisa cambios, verifica un SPEC
+  o implementa acotado. Úsala con "segunda opinión", "que lo revise Codex",
+  "revisión cruzada", al cerrar una ronda de agentes, o con dudas de perfiles,
+  sandbox o flags de Codex.
 ---
 
 # codex — el revisor que no comparte tus sesgos
@@ -27,7 +24,9 @@ lo hace imposible por sandbox.
 
 ## Perfiles instalados
 
-Archivos en `~/.codex/`, se apilan sobre `config.toml` (heredan modelo y auth):
+Archivos en `~/.codex/<perfil>.config.toml`, se apilan sobre `config.toml` (heredan modelo y
+auth). Verificado con Codex 0.163: esa es la ubicación que lee, y una tabla
+`[profiles.<perfil>]` dentro de `config.toml` la rechaza.
 
 | Perfil | Sandbox | Para qué |
 |---|---|---|
@@ -61,14 +60,16 @@ codex review --uncommitted </dev/null 2>/dev/null | tail -30
 
 Variantes: `--base <rama>`, `--commit <sha>`, `--title "<titulo>"`.
 
-## Trampas verificadas en esta instalación (Codex 0.146.0, Windows)
+## Trampas verificadas (Codex 0.146.0 y 0.163, Windows)
 
 Estas se comprobaron corriendo el CLI, no leyendo docs:
 
 1. **Un perfil mal escrito se ignora EN SILENCIO.** `-p revsor` no falla: cae a los
-   defaults de `exec`, que son `sandbox: workspace-write` + `approval: never` — es
-   decir, **escribe archivos sin preguntar**. Si el prompt es de solo lectura, no
-   confíes en el nombre del perfil: agrega `-s read-only` como cinturón.
+   defaults de `exec`. **Cuáles son depende de la versión y de tu `config.toml`:** en
+   0.146 fueron `sandbox: workspace-write` + `approval: never` — es decir, **escribía
+   archivos sin preguntar**; en 0.163, `codex exec` con un perfil inexistente cayó a
+   `sandbox: read-only`. No cuentes con ninguno de los dos: si el prompt es de solo
+   lectura, no confíes en el nombre del perfil y agrega `-s read-only` como cinturón.
 
 2. **`codex review` NO acepta `-p/--profile`.** Solo `-c`. Por suerte su default ya es
    `sandbox: read-only`.
@@ -91,7 +92,10 @@ Estas se comprobaron corriendo el CLI, no leyendo docs:
    sin pista. Un campo opcional se modela con `"type": ["string", "null"]`. Consecuencia
    que importa al verificar: **el esquema no puede exigir cardinalidad**, así que un
    veredicto `CUMPLE` con `criterios: []` es válido. La cobertura se comprueba fuera.
-   Esquema listo para usar: `~/.claude/skills/orquestador/assets/veredicto-codex.schema.json`.
+   Esquema listo para usar en la skill `orquestador`, que es carpeta hermana de esta:
+   desde el directorio base de esta skill (Claude Code lo indica al cargarla),
+   `../orquestador/assets/veredicto-codex.schema.json`. Vale igual instalado como plugin
+   que copiado a mano en `~/.claude/skills/`. Pásaselo en ruta absoluta.
 
 7. **Verificar un SPEC entero tarda más de 10 minutos: lánzalo en segundo plano.** Medido: 19
    criterios sobre un repo pequeño con `-C` y lectura de código pasaron de los 600 s del timeout
@@ -108,9 +112,10 @@ Estas se comprobaron corriendo el CLI, no leyendo docs:
    errores de arranque también. Si una invocación devuelve vacío, repítela con `2>&1`
    antes de suponer nada.
 
-## Vía MCP (registrado en Claude Code)
+## Vía MCP (si lo registraste en Claude Code)
 
-Codex está registrado como servidor MCP con scope `user`:
+Esta vía existe solo si registraste Codex como servidor MCP (con scope `user`, por
+ejemplo). Regístralo con el sandbox seguro en el propio comando:
 
 ```
 codex mcp-server -c sandbox_mode="read-only" -c approval_policy="never"
@@ -145,8 +150,9 @@ escritura y deja MCP solo para lectura.
 
 ## Verificación adversarial contra un SPEC
 
-El uso de mayor valor. Codex ya tiene `spec` y `verificar-spec` disponibles en
-`~/.agents/skills/` (enlazadas a `~/.claude/skills/`, fuente única).
+El uso de mayor valor. Si enlazaste `spec` y `verificar-spec` en `~/.agents/skills/`
+(apuntando a la misma copia que usa Claude Code, para tener una sola fuente), Codex también
+las tiene; si no, el prompt de abajo basta.
 
 ```bash
 codex exec -p revisor -s read-only -C "D:\ruta\proyecto" \
@@ -163,10 +169,10 @@ sólido, no que la revisión sobró.
 
 ## Generación de imágenes
 
-Codex también genera imágenes (`image_generation`, stable y activo). Ese flujo tiene su
-propia skill: **`codex-imagenes`** — Claude escribe el brief, Codex elige el modelo.
-Tiene trampas propias que no son obvias (Codex dibuja por código si el brief es simple,
-y `-i` necesita `--`), así que no improvises el comando: usa esa skill.
+Codex también genera imágenes (`image_generation`, stable y activo). Ese flujo no viene en
+este plugin: si tienes instalada la skill **`codex-imagenes`** (Claude escribe el brief,
+Codex elige el modelo), úsala. Si no, ojo con dos trampas que no son obvias: Codex dibuja
+por código si el brief es simple, y `-i` necesita `--`.
 
 ## Cuándo NO usarlo
 
