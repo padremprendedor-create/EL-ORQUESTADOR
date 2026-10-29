@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="-60 0 1180 1040" width="1180" height="1040" font-family="ui-sans-serif, -apple-system, 'Segoe UI', system-ui, sans-serif">
   <title>Flujo de una ronda orquestada: lente sobre el plano, tandas, carril, barrera y reencargo</title>
-  <desc>El orquestador escribe SPEC, contrato y reparto. Antes de lanzar nada, una lente barata revisa ese plan buscando un valor congelado mal puesto, un criterio que no va a poder cerrarse o una contradicción con el contrato. Lanza los bloques de una tanda en paralelo, cada uno con dueño exclusivo de sus archivos. Los bloques de riesgo alto disparan sus lentes adversariales en carril, sin esperar a los hermanos; los de riesgo medio y bajo esperan a la barrera de cierre de tanda, donde también se revisa el contrato entre bloques y se decide qué entra. Cuando una lente confirma un defecto real, el bloque se reencarga: vuelve a su dueño original, nunca a un agente nuevo — y si una lente de ese bloque sigue viva, reencargar invalida sus hallazgos, porque convierte los archivos en un blanco móvil. Después, Codex verifica el SPEC como revisor externo, el orquestador hace el commit único y un agente redactor escribe el informe HTML.</desc>
+  <desc>El orquestador escribe SPEC, contrato y reparto. Antes de lanzar nada, una lente barata revisa ese plan buscando un valor congelado mal puesto, un criterio que no va a poder cerrarse o una contradicción con el contrato. Lanza los bloques de una tanda en paralelo, cada uno con dueño exclusivo de sus archivos. Los bloques de riesgo alto disparan sus lentes adversariales en carril, sin esperar a los hermanos; los de riesgo medio y bajo esperan a la barrera de cierre de tanda, donde también se revisa el contrato entre bloques y se decide qué entra. Cuando una lente confirma un defecto real, el bloque se reencarga: vuelve a su dueño original, nunca a un agente nuevo — y si una lente de ese bloque sigue viva, reencargar invalida sus hallazgos, porque convierte los archivos en un blanco móvil. Después, Codex —o, si no está, un agente revisor sustituto— verifica el SPEC como revisor externo, el orquestador hace el commit único y un agente redactor escribe el informe HTML.</desc>
 
   <defs>
     <symbol id="bot" viewBox="0 0 40 32">
@@ -132,7 +132,7 @@
   <!-- ── codex ─────────────────────────────────────────────────────────── -->
   <rect x="280" y="740" width="560" height="80" rx="10" fill="none" stroke="#79c0ff" stroke-width="1.8"/>
   <use href="#bot-ext" x="300" y="756" width="30" height="24"/>
-  <text x="340" y="776" font-size="15" fill="#79c0ff">Codex — revisor externo, siempre</text>
+  <text x="340" y="776" font-size="15" fill="#79c0ff">Codex (o sustituto) — revisor externo, siempre</text>
   <text x="300" y="796" font-size="12" fill="#8b97a8">otra familia de modelos: no reconoce tus decisiones como propias</text>
   <text x="300" y="812" font-size="12" fill="#8b97a8">SPEC literal · evidencia archivo:línea · read-only</text>
 

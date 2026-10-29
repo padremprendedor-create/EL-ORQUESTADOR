@@ -174,6 +174,18 @@ este plugin: si tienes instalada la skill **`codex-imagenes`** (Claude escribe e
 Codex elige el modelo), úsala. Si no, ojo con dos trampas que no son obvias: Codex dibuja
 por código si el brief es simple, y `-i` necesita `--`.
 
+## Si Codex no está
+
+Sin CLI, sin sesión (`codex login status` sale con código 1), sin cuota o con el tiempo
+agotado dos veces: en el paso 7 del orquestador lo sustituye el agente
+**`revisor-sustituto`**, con el mismo brief (SPEC, criterios literales, diff, rutas) y el
+mismo esquema de veredicto. Cuándo saltar y qué se declara en el informe: el paso 7 de la
+skill `orquestador`. **Una salida vacía no cuenta como «no está»**: suele ser el esquema
+(trampa 6); relanza con `2>&1` (trampa 9) y mira el error antes de cambiar de revisor.
+
+Fuera de una ronda, para una segunda opinión suelta sin Codex, `verificar-spec` en una
+ventana nueva hace el mismo trabajo, con la misma advertencia: misma familia de modelos.
+
 ## Cuándo NO usarlo
 
 - Trabajo trivial de un paso: el round-trip cuesta más que el valor.

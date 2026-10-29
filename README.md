@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/padremprendedor-create/EL-ORQUESTADOR/actions/workflows/ci.yml/badge.svg)](https://github.com/padremprendedor-create/EL-ORQUESTADOR/actions/workflows/ci.yml) ![licencia MIT](https://img.shields.io/badge/licencia-MIT-blue) ![Claude Code](https://img.shields.io/badge/Claude%20Code-plugin-8a5cf6) ![proyecto en español](https://img.shields.io/badge/idioma-español-ffd24a)
 
-**El plano antes del martillo.** Un plugin de [Claude Code](https://claude.com/claude-code) —cuatro skills y tres agentes— para construir con agentes de IA sin que el resultado salga correcto y aun así inútil.
+**El plano antes del martillo.** Un plugin de [Claude Code](https://claude.com/claude-code) —cuatro skills y cuatro agentes— para construir con agentes de IA sin que el resultado salga correcto y aun así inútil.
 
 La IA optimiza lo que le pediste, no lo que querías. Y un agente que reporta `"status": "completado"` te está dando su opinión, no una prueba. Este plugin cierra esos dos huecos: escribes qué significa «terminado» **antes** de construir, y lo contrasta alguien que no fue quien construyó.
 
@@ -19,15 +19,16 @@ La IA optimiza lo que le pediste, no lo que querías. Y un agente que reporta `"
 
 Las cuatro se usan juntas, pero `spec` y `verificar-spec` funcionan solas si lo único que quieres es dejar de entregar a ciegas.
 
-Y **tres agentes**, que son el trabajo que se repite en cada ronda:
+Y **cuatro agentes**, que son el trabajo que se repite en cada ronda:
 
 | Agente | Qué es |
 |---|---|
 | **`bloque-constructor`** | Construye **un** bloque respetando la propiedad exclusiva de archivos. Lleva dentro los comandos que no puede correr en paralelo, «nunca commitees ni pushees», «producción es solo lectura» y el formato de reporte |
 | **`lente-adversarial`** | No construye: intenta **demostrar que un bloque está roto**. Lleva dentro «refutar, no revisar», reproducir contra el sistema real en vez de razonar sobre el código, y no volcar secretos en su reporte |
 | **`refutador`** | Al revés que la lente: toma **un** hallazgo grave suyo e intenta demostrar que es falso, reproduciéndolo de nuevo. Lo que sobrevive llega al orquestador |
+| **`revisor-sustituto`** | El revisor externo del paso 7 **cuando Codex no está** (sin instalar, sin sesión, sin cuota o colgado): verifica contra los criterios literales del SPEC con contexto limpio y devuelve el mismo veredicto que Codex. Es de la misma familia de modelos, y el informe lo declara |
 
-Que sean agentes y no párrafos de un brief tiene una consecuencia que importa: **sus reglas se aplican tanto si quien orquesta se acordó de pegarlas como si no.** Y llevan una lista cerrada de herramientas: ninguno lanza subagentes ni toca herramientas MCP (las que aplican migraciones o despliegan, incluidas), y la lente y el refutador no editan archivos. Por qué y hasta dónde llega ese freno: [SECURITY.md](SECURITY.md).
+Que sean agentes y no párrafos de un brief tiene una consecuencia que importa: **sus reglas se aplican tanto si quien orquesta se acordó de pegarlas como si no.** Y llevan una lista cerrada de herramientas: ninguno lanza subagentes ni toca herramientas MCP (las que aplican migraciones o despliegan, incluidas), la lente y el refutador no editan archivos, y el revisor sustituto no escribe ninguno. Por qué y hasta dónde llega ese freno: [SECURITY.md](SECURITY.md).
 
 Y **un workflow**, para quien use la herramienta Workflow de Claude Code:
 
@@ -72,7 +73,7 @@ No hay nada que compilar ni que instalar: son **archivos markdown** que Claude C
 | **Imprescindible** | [Claude Code](https://claude.com/claude-code) — CLI, app de escritorio o extensión del IDE, da igual |
 | **Sistema** | Cualquiera donde corra Claude Code: Windows, macOS o Linux |
 | **Disco** | 100 KB |
-| **Para la skill `codex`** | El [CLI de Codex](https://developers.openai.com/codex/cli) y una cuenta de OpenAI. Sin él, las otras tres funcionan igual: te saltas el paso 7 |
+| **Para la skill `codex`** | El [CLI de Codex](https://developers.openai.com/codex/cli) y una cuenta de OpenAI. Sin él, las otras tres funcionan igual, y el paso 7 lo hace el agente `revisor-sustituto` en su lugar |
 | **Para el `orquestador`** | Que tu Claude Code pueda lanzar subagentes, y **presupuesto de tokens** — ver [Lo que esto cuesta](#lo-que-esto-cuesta) |
 
 **Lo que de verdad limita aquí no es la máquina, son los tokens.** El orquestador lanza agentes en paralelo y una ronda grande se come millones de tokens; el paso 1 de la skill existe justo para decidir si compensa antes de gastarlos.
@@ -92,7 +93,7 @@ Desde Claude Code, dos comandos:
 
 El plugin y el marketplace se llaman igual: este repo publica un solo plugin. Luego pídele *"escribe el SPEC de esto"* o *"orquesta esto"*.
 
-> **Los agentes llevan el prefijo del plugin.** Instalado así son `el-orquestador:bloque-constructor`, `el-orquestador:lente-adversarial` y `el-orquestador:refutador`; copiados a mano (abajo), van a secas. Si ves `Agent type not found`, eso es lo primero que mirar — y lo segundo, reiniciar la sesión: **el registro de agentes se carga al arrancar**, así que uno recién instalado no aparece hasta la siguiente.
+> **Los agentes llevan el prefijo del plugin.** Instalado así son `el-orquestador:bloque-constructor`, `el-orquestador:lente-adversarial`, `el-orquestador:refutador` y `el-orquestador:revisor-sustituto`; copiados a mano (abajo), van a secas. Si ves `Agent type not found`, eso es lo primero que mirar — y lo segundo, reiniciar la sesión: **el registro de agentes se carga al arrancar**, así que uno recién instalado no aparece hasta la siguiente.
 
 ### A mano, sin el gestor de plugins
 

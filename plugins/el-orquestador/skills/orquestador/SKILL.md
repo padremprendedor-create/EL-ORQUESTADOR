@@ -2,8 +2,8 @@
 name: orquestador
 description: >
   Ronda de agentes en paralelo: SPEC, bloques con dueño exclusivo, lentes por
-  riesgo, Codex al cierre y commit único. Úsala con "orquesta esto", "lanza agentes
-  en paralelo", "monta una ronda", "divide esto en bloques", o si la obra tiene 3+
+  riesgo, revisor externo al cierre y commit único. Úsala con "orquesta esto", "lanza
+  agentes en paralelo", "monta una ronda", "divide esto en bloques", o si la obra tiene 3+
   frentes o toca base de datos, auth, dinero o producción.
 ---
 
@@ -48,14 +48,27 @@ documenta la ronda entera · se verifica **contra los criterios del SPEC, nunca 
 ## Paso 1 — Mide antes de gastar
 
 **Ronda completa** (SPEC → contrato → agentes en paralelo → verificación por riesgo →
-Codex → commit → informe) si se cumple **cualquiera** de estas:
+revisor externo → commit → informe) si se cumple **cualquiera** de estas:
 
 - el trabajo se parte en **3 o más bloques** que pueden correr a la vez, **o**
 - toca **base de datos, autenticación, dinero, borrado, o algo ya en producción**.
 
 **Vía corta** en cualquier otro caso: **un agente —nunca tú**, que quien construye no
-verifica—, revisión contra los criterios, **Codex igual** (es una llamada, no una ronda
-entera), commit. **Di en voz alta por qué elegiste la vía corta.**
+verifica—, revisión contra los criterios, **revisor externo igual** (es una llamada, no una
+ronda entera), commit. **Di en voz alta por qué elegiste la vía corta.**
+
+**Y antes de gastar nada, mira si Codex está** — es el revisor externo del paso 7:
+
+```bash
+codex --version && codex login status
+```
+
+Sale con código distinto de 0 si no está instalado o no hay sesión (comprobado en 0.163:
+`Not logged in`, código 1). En cualquiera de los dos casos, **el paso 7 lo hará el agente
+`revisor-sustituto`**: decídelo ahora, no al final de la ronda. Apunta en el contrato (o
+en el archivo de estado de la ronda) `revisor del paso 7: codex | sustituto`, con el
+motivo, y dilo en voz alta. Codex puede volver a fallar en el paso 7 aunque aquí estuviera:
+lo que se hace entonces está en ese paso.
 
 Lo que se ahorra por la vía corta es el **aparato** —contrato, tandas, lentes, bloques—,
 nunca la **separación entre quien construye y quien verifica**: esa sostiene todo lo
@@ -74,8 +87,8 @@ Invoca la skill `spec`. Si ya existe SPEC para este trabajo, **no lo reescribas*
 una fila a su bitácora y trabaja contra los criterios que tiene. Reutilizar no es saltarse.
 
 Un criterio que no se pueda contestar sí/no con evidencia localizable no es un criterio:
-es un deseo, y Codex te lo devolverá como `NO VERIFICABLE`. **Arréglalo ahora, que cuesta
-una frase; en el paso 7 cuesta la ronda.**
+es un deseo, y el revisor del paso 7 te lo devolverá como `NO VERIFICABLE`. **Arréglalo
+ahora, que cuesta una frase; en el paso 7 cuesta la ronda.**
 
 > **La única excepción legítima** es la producción de contenido contra una nota canónica
 > que ya fija qué es un entregable bueno: ahí los criterios existen y duplicarlos es
@@ -211,7 +224,7 @@ subir de modelo: `references/costes.md`.
 
 ### Los agentes del plugin
 
-El plugin trae tres tipos que ya llevan dentro lo que se repite ronda tras ronda (están en
+El plugin trae cuatro tipos que ya llevan dentro lo que se repite ronda tras ronda (están en
 su carpeta `agents/`; si lo instalaste a mano, en `~/.claude/agents/`):
 
 | `subagent_type` | Para qué | Qué lleva ya dentro |
@@ -219,11 +232,12 @@ su carpeta `agents/`; si lo instalaste a mano, en `~/.claude/agents/`):
 | **`bloque-constructor`** | cada bloque de una tanda | propiedad de archivos, comandos vetados en paralelo, «nunca commitees ni pushees», «producción es solo lectura», «no crees migraciones», «no vuelques secretos en tu reporte», formato de reporte |
 | **`lente-adversarial`** | cada lente del paso 6 | «refutar, no revisar», reproducir contra el sistema real, «comprueba antes de obedecer tu propio veredicto», separar lo que no es suyo, JSON del veredicto |
 | **`refutador`** | cada grave de una lente (paso 6) | el encargo invertido: «demuestra que este defecto no existe; por defecto, es falso», reproducirlo de nuevo contra el sistema real, JSON de la refutación |
+| **`revisor-sustituto`** | el paso 7, **solo si Codex no está** | verificación adversarial contra los criterios literales, `NO VERIFICABLE` sin evidencia, el mismo JSON que Codex; sin `Write` ni `Edit` |
 
-Los tres llevan además una **lista cerrada de herramientas** (`tools:` en su frontmatter):
+Los cuatro llevan además una **lista cerrada de herramientas** (`tools:` en su frontmatter):
 ninguno puede lanzar subagentes ni usar herramientas MCP —las que escriben en una base de
-datos o despliegan incluidas—, y la lente y el refutador no tienen `Edit`, solo `Write` para
-sus scripts fuera del repo. Es un freno técnico por debajo de las reglas, no en su lugar: la
+datos o despliegan incluidas—; la lente y el refutador no tienen `Edit`, solo `Write` para
+sus scripts fuera del repo, y el revisor sustituto no tiene ninguno de los dos. Es un freno técnico por debajo de las reglas, no en su lugar: la
 terminal sigue pudiendo escribir. Si un agente necesita un dato que solo da una herramienta
 MCP, dáselo tú en el brief. El porqué, en cada archivo del agente y en `SECURITY.md`.
 
@@ -406,8 +420,8 @@ deduplicación de hallazgos y tu revisión solo se pueden hacer con todo delante
 > en cada tema y a ancho de móvil, y compáralas tú, lado a lado con el diseño: una captura
 > que solo mira quien la hizo no basta.
 
-Todos los bloques, sea cual sea su riesgo, pasan por Codex en el paso 7. Lo que cambia es
-cuántas lentes, cuánto cuestan y cuándo.
+Todos los bloques, sea cual sea su riesgo, pasan por el revisor externo en el paso 7. Lo
+que cambia es cuántas lentes, cuánto cuestan y cuándo.
 
 ### Cómo lanzar las lentes de un bloque
 
@@ -493,11 +507,12 @@ archivos y sabe por qué los escribió así.
 
 ---
 
-## Paso 7 — Codex, siempre
+## Paso 7 — Revisión externa, siempre
 
-**Toda ronda cierra con Codex verificando el SPEC.** Es otra familia de modelos: no
-reconoce tus decisiones y por eso no las lee como correctas. Es el único revisor que no
-comparte tus sesgos.
+**Toda ronda cierra con un revisor externo verificando el SPEC.** Ese revisor es **Codex**:
+otra familia de modelos, no reconoce tus decisiones y por eso no las lee como correctas. Es
+el único revisor que no comparte tus sesgos. Si Codex no está, lo hace el agente
+**`revisor-sustituto`** (abajo): la ronda **nunca** cierra sin revisor externo.
 
 Usa la skill **`codex`** — no improvises el comando, tiene trampas verificadas (un perfil
 mal escrito se ignora **en silencio** y cae al sandbox por defecto de esa versión, que en
@@ -515,18 +530,50 @@ mal escrito se ignora **en silencio** y cae al sandbox por defecto de esa versi�
 **Comprueba la cobertura del veredicto antes de creértelo.** El esquema **no puede** exigir
 que estén todos los criterios (el modo estricto rechaza `minItems`), así que un `CUMPLE`
 con `criterios: []` es JSON válido. Contrasta a mano: mismos números, misma cantidad, sin
-duplicados, texto literal. **Un criterio que Codex no evaluó no es un `CUMPLE` tácito: es
-un `NO VERIFICABLE`, y basta uno para que la ronda no se integre entera.**
+duplicados, texto literal. **Un criterio que el revisor no evaluó no es un `CUMPLE` tácito:
+es un `NO VERIFICABLE`, y basta uno para que la ronda no se integre entera.**
 
-**Donde Codex y tú discrepáis está la señal.** Si coincidís en todo, el hallazgo es que el
-trabajo es sólido, no que la revisión sobró. Y cuando te corrija, mira si tiene razón antes
-de defenderte: en las rondas medidas la tuvo siempre.
+**Donde el revisor y tú discrepáis está la señal.** Si coincidís en todo, el hallazgo es que
+el trabajo es sólido, no que la revisión sobró. Y cuando te corrija, mira si tiene razón
+antes de defenderte: en las rondas medidas Codex la tuvo siempre.
+
+### Si Codex no está: `revisor-sustituto`
+
+Pasa al sustituto en dos momentos, y en ningún otro:
+
+| Cuándo | Qué viste |
+|---|---|
+| **Paso 1** | `codex` no está instalado, o `codex login status` no dice que haya sesión |
+| **Aquí, en el paso 7** | `401`/sin credenciales, cuota agotada (`429`, «quota», «rate limit»), o se agota el tiempo **dos veces**: la primera, relánzalo en segundo plano con `-o <archivo>` (una verificación entera pasa de los 600 s, ver la skill `codex`); la segunda, sustituto |
+
+**Una salida vacía no es «Codex no está».** Con `2>/dev/null` así es como se ve un esquema
+mal formado (`400 invalid_json_schema`). Antes de pasar al sustituto, relanza con `2>&1`
+(trampa 9 de la skill `codex`) y lee el error: si es del esquema o del prompt, se arregla y
+se repite con Codex.
+
+Cómo se lanza:
+
+- **Con contexto limpio.** El brief lleva **solo** la ruta del SPEC, sus **criterios
+  literales**, el diff de la ronda (o el rango de commits) y las rutas que tocan los
+  criterios — lo mismo que le darías a Codex. **Nunca** tu resumen, los reportes de los
+  constructores ni los veredictos de las lentes: es de tu misma familia de modelos, y lo
+  único que le queda para no compartir tus sesgos es no haber visto tu razonamiento.
+- **El mismo veredicto.** Devuelve el JSON de `assets/veredicto-codex.schema.json`, y su
+  cobertura se comprueba igual que la de Codex: mismos números, misma cantidad, texto
+  literal.
+- **Cuenta igual que Codex** para integrar y para la puerta de las migraciones. Lo que
+  cambia es lo que se declara: el informe lo dice en rojo — *revisión sustituta, misma
+  familia de modelos* — con el motivo (`codex no instalado`, `sin sesión`, `429`...).
+
+Lo que se pierde es la otra familia de modelos, y no se recupera con más agentes Claude.
+Si lo que está en juego es alto (dinero, acceso, una migración que rompe), recomienda en el
+informe repetir la verificación con Codex cuando vuelva a estar disponible.
 
 > ### Puerta de las migraciones
 >
 > La regla permanente es: *el orquestador aplica los SQL **después** de verificar el SPEC
-> con un agente externo*, y solo si quien responde del proyecto se lo ha autorizado de
-> antemano. Sin esa verificación previa, una migración **no
+> con un agente externo* —Codex o, si no está, `revisor-sustituto`—, y solo si quien
+> responde del proyecto se lo ha autorizado de antemano. Sin esa verificación previa, una migración **no
 > se aplica: se propone**. Y cuando la corrección de un defecto obligue a partir una
 > migración en una parte compatible hacia atrás y otra que rompe, se aplica la primera, **se
 > comprueba en producción que el despliegue está vivo**, y solo entonces la segunda.
@@ -593,7 +640,8 @@ Y entrega el informe: **`references/informe.md`**.
 ## Barreras innegociables
 
 - Los agentes escriben archivos y reportan. **Tú eres el único que commitea y pushea.**
-- Ningún SQL se aplica sin verificación externa previa. Sin ella, se propone.
+- Ningún SQL se aplica sin verificación externa previa (Codex o `revisor-sustituto`). Sin
+  ella, se propone.
 - Se verifica contra los criterios del SPEC, **nunca** contra el `status` del agente.
 - Un archivo tiene un solo dueño por ronda.
 - `.env` y secretos no se commitean jamás — **ni se copian en el reporte de un agente**.
@@ -610,7 +658,8 @@ Y entrega el informe: **`references/informe.md`**.
 
 ## Relacionado
 
-`spec` · `verificar-spec` · `codex` — las otras tres skills de este plugin.
+`spec` · `verificar-spec` · `codex` — las otras tres skills de este plugin. Si Codex no
+está, el agente `revisor-sustituto` (paso 7).
 
 Y, si los tienes instalados: `artifact-design` para el informe, y cualquier pack de
 auditoría cuando lo que se pregunta es «¿qué se rompe en producción?» en vez de «¿esto
