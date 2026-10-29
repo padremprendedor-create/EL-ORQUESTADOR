@@ -1,6 +1,6 @@
 {
   "name": "el-orquestador",
-  "description": "Spec-driven development con agentes en paralelo: escribe un SPEC con criterios verificables antes de construir, reparte el trabajo en bloques con dueño exclusivo de archivos, verifica por riesgo con lentes adversariales, cierra con un revisor externo (Codex) y entrega un informe con cada afirmación marcada como comprobada o no. Incluye las cuatro skills del método y los tres agentes que hacen el trabajo repetido: el constructor de bloque, la lente adversarial y el refutador de sus graves.",
+  "description": "Spec-driven development con agentes en paralelo: escribe un SPEC con criterios verificables antes de construir, reparte el trabajo en bloques con dueño exclusivo de archivos, verifica por riesgo con lentes adversariales, cierra con un revisor externo (Codex, o un agente sustituto si no está) y entrega un informe con cada afirmación marcada como comprobada o no. Incluye las cuatro skills del método y los cuatro agentes que hacen el trabajo repetido: el constructor de bloque, la lente adversarial, el refutador de sus graves y el revisor sustituto de Codex.",
   "author": {
     "name": "Junior Alvarez Velaquez"
   },

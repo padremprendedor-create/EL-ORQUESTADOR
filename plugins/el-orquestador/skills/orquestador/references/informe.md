@@ -31,6 +31,11 @@ el único que puede inventarse una narrativa:
    quede mejor. Las marcas vienen puestas de tu tabla.
 3. **No decide qué entró.** Eso ya está decidido cuando él arranca.
 
+Y una cosa que va siempre en su entrada: **quién hizo la revisión externa del paso 7**.
+Si fue `revisor-sustituto`, el informe lo declara con su marca roja y el motivo —la plantilla
+trae el párrafo—: quien lea «revisor externo» tiene que saber que esta vez era de la misma
+familia de modelos.
+
 **Lo lees entero antes de publicarlo.** Que lo teclee otro no lo hace suyo: el informe
 sigue siendo tuyo, y respondes de cada marca que lleva. Un agente bien encargado te dirá
 qué campos de la plantilla no pudo rellenar **en vez de inventarlos** — hazle caso y

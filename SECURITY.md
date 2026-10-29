@@ -18,12 +18,13 @@ Casi todos esos frenos son reglas escritas que el agente sigue porque están en 
 
 ## El único freno técnico: la lista de herramientas de los agentes
 
-Un subagente sin campo `tools` en su frontmatter **hereda todas las herramientas** de la sesión, MCP incluidas: con un Supabase o un Vercel conectados, eso es `apply_migration`, `execute_sql` y `create_deployment`. Entonces «nunca aplica migraciones» dependería solo de que el modelo obedezca un párrafo. Por eso los tres agentes del plugin llevan una **lista cerrada**:
+Un subagente sin campo `tools` en su frontmatter **hereda todas las herramientas** de la sesión, MCP incluidas: con un Supabase o un Vercel conectados, eso es `apply_migration`, `execute_sql` y `create_deployment`. Entonces «nunca aplica migraciones» dependería solo de que el modelo obedezca un párrafo. Por eso los cuatro agentes del plugin llevan una **lista cerrada**:
 
 | Agente | Tiene | No tiene |
 |---|---|---|
 | `bloque-constructor` | leer, terminal, `Write`, `Edit`, `NotebookEdit`, web | `Agent` (subagentes), cualquier herramienta MCP |
 | `lente-adversarial` y `refutador` | leer, terminal, `Write` (para sus scripts fuera del repo), web | `Edit`, `NotebookEdit`, `Agent`, cualquier herramienta MCP |
+| `revisor-sustituto` | leer, terminal | `Write`, `Edit`, `NotebookEdit`, web, `Agent`, cualquier herramienta MCP |
 
 Por qué es lista cerrada y no lista negra: los nombres de las herramientas MCP dependen de cómo se conectó cada servidor (`mcp__supabase__…` o `mcp__<uuid>__…`) y no dicen si escriben, así que una lista negra de MCP de escritura nunca está completa. Con la lista cerrada, un servidor nuevo no entra solo. El coste es que tampoco entran las MCP que solo leen: si un agente necesita ese dato, el orquestador se lo pasa en el brief.
 

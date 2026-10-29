@@ -248,7 +248,7 @@ for (const { nombre, dir, source } of pluginsDeclarados) {
     // en un ejemplo, en una nota) y tres lineas identicas en CI son ruido que
     // hace que se dejen de leer los errores.
     const citados = new Set(
-      [...texto.matchAll(/`(?:[\w-]+:)?(bloque-constructor|lente-adversarial|refutador)`/g)].map((m) => m[1]),
+      [...texto.matchAll(/`(?:[\w-]+:)?(bloque-constructor|lente-adversarial|refutador|revisor-sustituto)`/g)].map((m) => m[1]),
     );
     for (const citado of citados) {
       if (!agentes.has(citado)) {
